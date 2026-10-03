@@ -4221,6 +4221,25 @@ function dealJoker(teamId){
     syncAll();
 }
 
+/* Moderatör "Kart Dağıt" der: seçim bekleyenler hariç tüm oyunculara 3 ters kart sunulur */
+function dealAllJokers(){
+    if(role!=="mod"){ return; }
+    if(!teams.length){ alert("Henüz oyuncu yok."); return; }
+    if(!jokerDB.some(j=>j.count>0)){ alert("Stokta joker kart yok."); return; }
+    if(!confirm("Tüm oyunculara joker kart dağıtımı başlatılsın mı?\n(Zaten seçim bekleyen oyuncular atlanır.)")){ return; }
+    let n = 0;
+    teams.forEach(t=>{
+        if(t.draw){ return; }
+        const pool = jokerDB.filter(j=>j.count>0).sort(()=>Math.random()-0.5).slice(0,3);
+        if(!pool.length){ return; }
+        t.draw = pool.map(j=>j.id);
+        addNotice(t, "🃏 Joker dağıtımı başladı: 3 karttan birini seç!");
+        n++;
+    });
+    syncAll();
+    alert(n+" oyuncuya kart sunuldu.");
+}
+
 function coreJokerPick(teamId, idx){
     const t = getTeam(teamId);
     if(!t || !t.draw){ return; }
@@ -4289,7 +4308,7 @@ function renderJokerOps(){
     const sig = reqs+tm;
     if(box.dataset.sig===sig){ return; }
     box.dataset.sig = sig;
-    box.innerHTML = `<h3>Kullanım istekleri</h3>${reqs||'<div class="smallNote" style="opacity:1">Bekleyen istek yok.</div>'}<h3>Oyuncular</h3>${tm||'<div class="smallNote" style="opacity:1">Oyuncu yok.</div>'}`;
+    box.innerHTML = `<button class="greenBtn" style="width:auto;margin:0 0 10px" onclick="dealAllJokers()">🃏 Kart Dağıt (tüm oyuncular)</button><h3>Kullanım istekleri</h3>${reqs||'<div class="smallNote" style="opacity:1">Bekleyen istek yok.</div>'}<h3>Oyuncular</h3>${tm||'<div class="smallNote" style="opacity:1">Oyuncu yok.</div>'}`;
 }
 
 function renderJokers(){

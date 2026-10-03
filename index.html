@@ -350,7 +350,7 @@ const DEFAULT_BUDGET = 100;
 ============================================================ */
 
 const positions = [
-    "Kaleci","Sol Bek","Sağ Bek","Stoper",
+    "Kaleci","Sol Bek","Sağ Bek","Sol Stoper","Sağ Stoper",
     "6 Numara","8 Numara","10 Numara",
     "Sol Kanat","Sağ Kanat","Forvet"
 ];
@@ -358,8 +358,8 @@ const positions = [
 const SLOTS = [
     { key:"gk",  label:"Kaleci",     pos:"Kaleci",    x:50, y:89 },
     { key:"lb",  label:"Sol Bek",    pos:"Sol Bek",   x:12, y:73 },
-    { key:"lcb", label:"Sol Stoper", pos:"Stoper",    x:37, y:76 },
-    { key:"rcb", label:"Sağ Stoper", pos:"Stoper",    x:63, y:76 },
+    { key:"lcb", label:"Sol Stoper", pos:"Sol Stoper", x:37, y:76 },
+    { key:"rcb", label:"Sağ Stoper", pos:"Sağ Stoper", x:63, y:76 },
     { key:"rb",  label:"Sağ Bek",    pos:"Sağ Bek",   x:88, y:73 },
     { key:"dm",  label:"6 Numara",   pos:"6 Numara",  x:35, y:57 },
     { key:"cm",  label:"8 Numara",   pos:"8 Numara",  x:65, y:57 },
@@ -2311,7 +2311,11 @@ let playerDB = [
     ...makePlayers(goalkeeperPlayers,"Kaleci"),
     ...makePlayers(leftBackPlayers,"Sol Bek"),
     ...makePlayers(rightBackPlayers,"Sağ Bek"),
-    ...makePlayers(centreBackPlayers,"Stoper"),
+    /* Stoper havuzu iki mevkiye eşit bölünür: sıralı listeden sırayla
+       bir Sol, bir Sağ verilir; böylece iki havuz da hem sayı hem değer
+       olarak dengeli kalır (tek sayıda oyuncu varsa fazlası Sol'a gider). */
+    ...makePlayers(centreBackPlayers.filter((_,i)=>i%2===0),"Sol Stoper"),
+    ...makePlayers(centreBackPlayers.filter((_,i)=>i%2===1),"Sağ Stoper"),
     ...makePlayers(defensiveMidPlayers,"6 Numara"),
     ...makePlayers(centralMidPlayers,"8 Numara"),
     ...makePlayers(attackingMidPlayers,"10 Numara"),

@@ -115,6 +115,12 @@ h2,h3{margin:0 0 10px;}
 .poolTools .controlGroup{margin:0;min-width:160px;}
 .poolTools button{padding:11px 14px;border:0;border-radius:9px;color:#fff;font-weight:bold;}
 .tableWrap{overflow:auto;max-height:70vh;}
+.jRow{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;}
+.jBack{width:110px;height:150px;border-radius:12px;border:2px solid #f1c40f;background:linear-gradient(135deg,#1b2a49,#3b2a7a);color:#f1c40f;font-size:46px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.jBack span{font-size:14px;margin-top:6px;}
+.jCard{width:230px;padding:10px;border-radius:12px;background:#f1ece0;color:#222;}
+.jCard select{width:100%;margin-top:6px;}
+.jOp{padding:8px;margin:6px 0;border-radius:8px;background:rgba(255,255,255,.07);}
 .lastBidTag{font-size:18px;font-weight:bold;color:#f1c40f;min-height:24px;margin-bottom:6px;}
 .orangeBtn{background:#f39c12;}
 .pausedTag{color:#f39c12;font-weight:900;}
@@ -311,10 +317,14 @@ table.pool input.cl{width:110px;}
         <div class="poolTools">
             <div class="controlGroup"><label>Joker adı</label><input id="newJokerName" type="text" placeholder="Örn: Mevki Kilidini Aç"></div>
             <div class="controlGroup" style="min-width:280px"><label>Açıklama</label><input id="newJokerDesc" type="text" placeholder="Ne işe yarar?"></div>
-            <div class="controlGroup" style="min-width:90px"><label>Adet</label><input id="newJokerCount" type="number" min="0" step="1" value="1"></div>
+            <div class="controlGroup" style="min-width:90px"><label>Etki (ops.)</label><input id="newJokerFx" type="text" placeholder="s+50 / s+20% / o-20%"></div>
+            <div class="controlGroup" style="min-width:90px"><label>Stok</label><input id="newJokerCount" type="number" min="0" step="1" value="1"></div>
             <button class="greenBtn" style="width:auto;margin:0" onclick="addJoker()">Joker ekle</button>
         </div>
 
+        <div id="jokerOps"></div>
+        <h3>Kart kataloğu</h3>
+        <div class="smallNote" style="opacity:1">Yeni kart ekleyince hemen çekilişe girer; etki boşsa kullanıldığında sana onay isteği düşer, sen uygularsın.</div>
         <div class="tableWrap"><div id="jokerTable"></div></div>
     </div>
 
@@ -2408,6 +2418,96 @@ const jokerUnlocked = new Set();
 /* Joker kartlar: moderatör Joker Kartlar sekmesinden ekler / düzenler. */
 let jokerDB = [];
 let jokerCounter = 0;
+let jokerRequests = [];
+let jokerUidCounter = 0;
+
+/* Biçim: BAŞLIK|açıklama|etki   Etki boşsa moderatör uygular.
+   Otomatik etkiler: s+50 (kasana 50M€), s+20% (başlangıç bütçesinin %20'si), o-20% (rakiplerin bütçesi %20 düşer) */
+const JOKER_SEED = `
+Kadro Değişimi|Oyun başında tüm kadrolara ve piyasa değerlerine bakıp kadronu bir oyuncunun kadrosuyla değiştirirsin. Memnunsan diğer 2 oyuncunun kadrosunu değiştirebilirsin.|
+Transfer Takası|Oyun başlamadan rakibin seçtiğin oyuncusuyla kendi aynı mevkideki oyuncunu zorunlu takas edersin. İki oyuncunun değer farkı en fazla 20M€.|
+Kara Para Aklama|Sponsorluk üzerinden 50M€ kara para aklarsın, helali hoş olsun.|s+50
+Sakatlık Kabusu|Rakibinin seçtiğin oyuncusu sakatlanır, kadro dışı kalır; yedeğiyle devam eder. Sonra yedeği satabilir. (50M€ altı için geçerli.)|
+El Mahkum|Rakibin seçtiğin futbolcusunu 3 mevki turu kilitlersin; mevki açıklanınca seçilemez, satışa sunulursa satılamaz. Son 3 mevki turunda kullanılamaz. Kilitliyse yalnız Deadline Day'de yerine biri alınır. (20M€ altı olamaz.)|
+Zorunlu Satış|Rakibinden bir futbolcu seç; o mevkideki futbolcusunu satmak zorunda. O mevkiye ya son 2 sıradan transfer yapar ya da yedeğiyle devam eder.|
+Oyuncu Hırsızı|Rakibinden bir oyuncu alıp aynı mevkideki as oyuncunla takas edersin. Satmışsan parasını iade edersin. Kendi oyuncun 20M€ altı, rakipten aldığın 50M€ üstü olamaz; açık artırmada 120M€ üstü satılan olmaz.|
+Gasp|Açık artırmada alınan futbolcuyu, ödenen paranın yarısını verip alandan anında gasp edersin; ona kendi aynı mevki as oyuncunu verirsin. (70M€ altı.) Satmışsan o parayı iade edersin. Gasp edilen oyuncu diğer artırmalara girebilir ya da verdiğin oyuncuyla devam edebilir.|
+Menajer Oyunları|Girdiğin bir açık artırmada bir rakibin teklif vermesini yasaklarsın. (Mevki için değil, sadece o mevkideki 1 futbolcu için.)|
+Taktiksel Ambar|Seçtiğin rakip bir sonraki açık artırma turuna katılamaz; ya piyasada kalan son 2 oyuncudan birini alır ya da yedeğiyle devam eder.|
+Veto Hakkı|Rakip en yüksek teklifle oyuncuyu aldıktan sonra kullanırsın; transfer iptal olur, oyuncu o tur satılamaz, Deadline Day havuzuna düşer. Alan kişi parasını geri alır.|
+Kart Hırsızı|Oyuncular şans kartlarını kapalı uzatır, birini rastgele seçersin. Kart senin olur ama o kişiye karşı kullanamazsın. (Sadece şans kartları.)|
+Bedava Transfer|Girdiğin açık artırmada kazandığın futbolcunun teklif bedelinin %50'sini banka karşılar. Tek futbolcuda kullanılır. (Maks. 90M€; futbolcuyu alacak kadar paran olmalı.)|
+Menajere El Altından Çanta|Menajere 20M€ ek ödersin; oyuncu açık artırmaya çıkmadan piyasa değerine sana gelir. (Piyasa değeri 75M€ üstü olmamalı.)|
+Erken Satış Primi|Kadrondan seçtiğin oyuncuyu mevkisi gelmeden erkenden satıp bütçe oluşturursun.|
+Geri Alım Opsiyonu (Buy-Back)|Rakiplerin sattığı ilk 11 futbolcusundan birini değerinin yarısını bankaya ödeyerek transfer edersin.|
+Yedek Satma Hakkı|As futbolcunu satarken yedeğini de satıp piyasa değerinin yarısını kasana eklersin. (20M€ yedek = +10M€.)|
+X2 Çarpanı|Bir futbolcuyu değerinin 2 katına satarsın; en fazla 50M€ gelir sağlar.|
+Bütçe Karışıklığı|Senden yüksek ama sana en yakın bütçeli oyuncunun bütçesi kadar bütçen olur. (En yüksek bütçe sendeyse kasana 30M€ eklenir.)|
+Sigorta Poliçesi|Kadrondan futbolcu şans kartıyla çıkarılır, takasa girer ya da satılmaya zorlanırsa kartı sana kullanan oyuncu futbolcunun değerinin %100'ünü tazminat öder.|
+Basın Sözcüsü Müdahalesi|Sana atılan Saldırı Kartı'nın hedefini değiştirirsin; kartı kullanan, etkiyi kendi seçeceği başka bir rakibe yönlendirmek zorunda kalır.|
+Hasarlı Kalkan|Sana kullanılan şans kartını engelleyemezsin ama kopyasını alırsın; kartı sana kullanan dışındaki herhangi bir oyuncuya karşı kullanabilirsin.|
+Yasaklı Oyuncu|Seçtiğin oyuncu 3 mevki turu boyunca sana şans kartı kullanamaz (oyun sonu dahil değil). Moderatöre gizlice söyle; kullanırsa kartı yanar.|
+Başkanın Maç Sonu Açıklamaları|2 tur boyunca dokunulmaz olursun; sana kullanılan şans kartları etki etmez, yanar. Oyun sonu dahil değil. Ne zaman kullanacağını moderatöre gizlice bildir.|
+Tekrar Müzayede|Bir mevkinin artırması bittikten sonra oynanır. O mevkideki tüm transferler iptal, paralar iade; mevki yeniden yapılır. Sıralama değişmez, aynı futbolcu ikinci kez satın alınamaz.|
+Random Kart Bloğu|Oyuncular şans kartlarını uzatır; birini bilmeden rastgele seçersin, kartı öğrenirsin ve o kişi o kartı sana karşı kullanamaz.|
+Kaşar Futbolcu|Kendi kadrondan bir futbolcuyu kilitlersin, kimse ona dokunamaz.|
+VAR İncelemesi|Sana karşı Saldırı/Müzayede kartı kullanıldığında açarsın; etki askıya alınır, yazı-tura atılır, seçtiğin taraf gelirse kart işlemez.|
+Rakip Bütçe Görüşü|Bir futbolcunun artırması sürerken bir rakibin kalan parasını öğrenirsin. (Artırma dışı kullanılamaz.)|
+İçeriden Bilgi|Tüm rakiplerinin kasasında kalan parayı sadece sen öğrenirsin.|
+İşini Şansa Bırakma|Bir oyuncu seç, elindeki tüm şans ve müzayede kartlarını öğren. Kimseye söyleyemezsin.|
+Kart Dedektörü|Tüm oyuncuların elindeki toplam Şans + Müzayede kartı sayısını öğrenirsin (isimleri değil).|
+Açık Liste|Seçtiğin 3 mevkinin açık artırma listesini görürsün.|
+Mevki Takibi|Seçtiğin 3 mevkinin hangi sırada açık artırmaya çıkacağını öğrenirsin.|
+Sıradaki Kim|Açık artırmada 3 kez bir sonraki oyuncunun kim olduğunu öğrenirsin.|
+Tuzak Teklif|Açık artırmada sahte teklif verirsin. Rakipler çekilince kartı açarsın, teklifin iptal olur; senden sonraki en yüksek teklif oyuncuyu alır. Sadece artırma sırasında.|
+Kör Teklif|Bir mevki artırmasında sırayı sen belirlersin, futbolcuları rastgele dizersin; isim ve değerler yalnız sana görünür, taban fiyat 35M€, teklifler körlemesine. 4 oyuncu satılınca açıklanır. (1. oyuncudan önce kullan.)|
+Menajer Komisyonu Krizi|Rakip artırmayı kazanınca kullanırsın; transfer için bankaya ekstra 20M€ ödemek zorunda. Ödeyemezse transfer iptal, oyuncu havuza döner; diğer oyuncular için artırma yeniden başlar.|
+Açık Artırma Blöfü (Rest Çekme)|Teklif verdikten sonra kullanılır; o futbolcu için artırma kilitlenir. Teklifini geçmek için en az +20M€ gerekir. Kimse artırmazsa futbolcu sende kalır.|
+Zorla Transfer|Artırmada hiç oyuncu almak istemeyip yedeğiyle devam etmek isteyen birine kullanırsan 4. futbolcuyu almak zorunda kalır. (4. futbolcu boşta olmalı.)|
+Yiyin Birbirinizi|Girmediğin ya da girip futbolcu aldığın artırmada kullanırsan kalan futbolcuların taban fiyatı %50 artar.|
+Piyasa Düşüşü|Bir oyuncu sattığı futbolcudan %50 zarar ederek satar.|
+Komisyoncu|Bir oyuncunun sattığı futbolcudan %50 komisyon kesersin. (Parayı satan futbolcudan alırsın.)|
+Kalkan|Sana karşı 1'e 1 kullanılan, istediğin bir şans kartını engellersin. 1 kez kullanılır.|
+Transfer Yasağı|Seçtiğin bir rakip 1 tur boyunca hiçbir oyuncu için teklif veremez.|
+El Koyma|Rakibin kadrosundan bir oyuncuyu güncel piyasa değerine doğru alırsın. Aldığın oyuncu dokunulmaz olur.|
+Çifte Değer|Sıradaki açık artırmada teklifin yarısını sponsor karşılar, oyuncuyu yarı fiyatına alırsın.|
+Sigorta|Kadrondaki bir oyuncu oyun boyunca El Koyma ve benzeri jokerlere karşı korunur.|
+Kara Liste|Belirlediğin bir oyuncu (transfer listesi dahil) 1 tur boyunca kimse tarafından satın alınamaz.|
+Bütçe Enjeksiyonu|Bütçene anlık ekstra bir miktar (başlangıç bütçesinin %20'si) eklenir.|s+20%
+Takas Zorlaması|Rakiple anlaşmadan bağımsız, eşdeğer piyasa değerine sahip iki oyuncuyu zorla takas edersin.|
+Şok Teklif|Devam eden bir açık artırmada rakibin son teklifini %30 artırmaya zorlarsın ve oyuncuyu ona aldırırsın.|
+Kadro Dondurma|Seçtiğin rakip 1 tur boyunca kadrosunda hiçbir değişiklik ve joker kullanımı yapamaz.|
+Yıldız Garantisi|Belirlediğin tek bir oyuncuyu o turdaki açık artırmayı otomatik kazanırsın.|
+Prim Avantajı|Sattığın bir oyuncudan elde ettiğin geliri %20 artırırsın.|
+Karşı Hamle|Sana karşı kullanılan bir jokeri iptal edersin. Tüm jokerlere geçerlidir.|
+Sadakat Bonusu|3 tur elinde tuttuğun oyuncu satılamaz hale gelir; jokerler onu etkileyemez.|
+Sakatlık Şansı|Rakibin kadrosundan bir oyuncuyu oyun boyunca sakat ilan edip oynatamazsın.|
+Rastgele Kutu|50-100M€ değerindeki transfer listesinden seçtiğin oyuncuyu yarı fiyatına alırsın.|
+Panik Butonu|Bir rakibin en değerli oyuncusunu tur sonunda satmak zorunda kalmasını sağlarsın.|
+Anlaşma Bozma|Rakibin az önce tamamladığı transferi iptal edip oyuncuyu listeye düşürürsün (ödediği para gider).|
+Paket Transfer|Aynı anda 2 oyuncuyu tek teklifle, toplam değerlerinin %80'ine direkt kadrona katarsın.|
+Ekspres Satış|Kendi oyuncularından birini açık artırmaya gerek kalmadan anında piyasa değeriyle satarsın.|
+Sponsorluk Anlaşması|3 tur boyunca her turda 20M€ ekstra gelir kazanırsın.|
+Ekonomik Kriz|Tüm rakiplerin bütçesi %20 azalır, sen etkilenmezsin.|o-20%
+Değer Şişirme|Kendi oyuncunun piyasa değerini geçici olarak en fazla iki katına çıkarıp satarsın.|
+Dokunulmazlık|Oyun boyunca kadronda hiçbir oyuncu hedef alınamaz, kadro kilitlenir.|
+Yansıtma Kalkanı|Sana karşı kullanılan bir jokerin etkisini kullanan rakibe geri döndürürsün.|
+Piyasa Analizi|Bir sonraki tur piyasaya çıkacak tüm oyuncuları ve değerlerini önceden görürsün.|
+Kadro Kilidi|Kadrondaki bir oyuncuyu oyun boyunca kilitlersin; alınıp satılamaz, joker de işlemez.|
+Pozisyon Değişimi|Kadrondaki bir oyuncunun mevkisini değiştirip oynatabilirsin (rakipte de bunu yapabilirsin).|
+Yedek Pazarı|Yedek kulübendeki bir oyuncuyu piyasa değerinin %20 üzerinde satma hakkı kazanırsın.|
+Toplu Yedek Satışı|En değerli kadroya sahip rakibin yedek oyuncularının toplam değeri kadar kasana para eklenir.|
+Ebedi Kalkan|Seçtiğin oyuncu oyun sonuna kadar tüm jokerlere karşı bağışıktır; el konulamaz, satışa zorlanamaz.|
+Mutlak Tahkimat|Tüm kadronu kilitlersin; kimse senden oyuncu alamaz, sana joker işlemez ama sen de ihaleye giremezsin.|
+Sessiz Operasyon|Rakip fark etmeden kadrosundan bir oyuncuyu kapatırsın; oyuncu artık hiçbir jokerin hedefi olamaz.|
+Gece Yarısı Baskını|Tur bitmeden rakibin kadrosundan bir oyuncuyu kimse fark etmeden alırsın; rakip yeni turda öğrenir.|
+Gizli Bağış|Sıradaki teklifin %30'unu bilinmeyen bir bağışçı karşılar; bütçenden yalnızca %70'i ödenir.|
+Ortak Yatırım|Sıradaki transferde bir yatırımcı ortak bulunur; oyuncunun bedelinin yarısını o öder.|
+`;
+JOKER_SEED.trim().split("\n").forEach(l=>{
+    const p = l.split("|");
+    jokerDB.push({ id:"j"+(++jokerCounter), name:p[0].toLocaleUpperCase("tr"), desc:p[1]||"", count:1, fx:(p[2]||"").trim() });
+});
 
 function positionLocked(pos){
     return lockedPositions.has(pos) && !jokerUnlocked.has(pos);
@@ -2452,6 +2552,8 @@ function newTeam(i){
         spent:0,
         starters:{},
         bench:{},
+        jokers:[],
+        draw:null,
         notices:[]
     };
 
@@ -3426,6 +3528,9 @@ function buildView(team){
         sellPrompt:sp,
         finished:auction.finished,
         locked:[...lockedPositions].filter(positionLocked),
+        draw:team.draw ? team.draw.length : 0,
+        jokers:team.jokers.map(h=>{ const j=jokerById(h.id); return { uid:h.uid, name:j?j.name:"?", desc:j?j.desc:"", pending:h.pending }; }),
+        others:teams.filter(o=>o!==team).map(o=>({ id:o.id, name:teamLabel(o) })),
         notices:team.notices.slice(-6)
     };
 
@@ -3638,6 +3743,8 @@ function onNet(msg){
         if(!team || !team.cid || team.cid!==msg.cid){ return; }
         if(msg.t==="bid"){ coreBid(team.id, Number(msg.amount)); }
         else if(msg.t==="sellAnswer"){ coreSellAnswer(team.id, msg.playerId || null); }
+        else if(msg.t==="jokerPick"){ coreJokerPick(team.id, Number(msg.idx)); }
+        else if(msg.t==="jokerUse"){ coreJokerUse(team.id, String(msg.uid), msg.target); }
         else if(msg.t==="hello"){ broadcastViews(); }
         return;
     }
@@ -4100,6 +4207,91 @@ function addPlayerToPool(){
    JOKER KARTLAR (ekle / düzenle / sil)
 ============================================================ */
 
+function jokerById(id){ return jokerDB.find(j=>j.id===id); }
+
+/* Takıma ters dönmüş 3 kart sun (stoktaki kartlardan rastgele) */
+function dealJoker(teamId){
+    const t = getTeam(teamId);
+    if(role!=="mod" || !t){ return; }
+    if(t.draw){ alert("Bu oyuncunun seçilmemiş kartları zaten var."); return; }
+    const pool = jokerDB.filter(j=>j.count>0).sort(()=>Math.random()-0.5).slice(0,3);
+    if(!pool.length){ alert("Stokta joker kart yok."); return; }
+    t.draw = pool.map(j=>j.id);
+    addNotice(t, "🃏 Joker hakkın var: 3 karttan birini seç!");
+    syncAll();
+}
+
+function coreJokerPick(teamId, idx){
+    const t = getTeam(teamId);
+    if(!t || !t.draw){ return; }
+    const j = jokerById(t.draw[idx]);
+    t.draw = null;
+    if(!j){ syncAll(); return; }
+    if(j.count>0){ j.count--; }
+    t.jokers.push({ uid:"u"+(++jokerUidCounter), id:j.id, pending:false });
+    addNotice(t, "🃏 Joker kazandın: "+j.name);
+    syncAll();
+}
+
+function coreJokerUse(teamId, uid, target){
+    const t = getTeam(teamId);
+    const h = t && t.jokers.find(x=>x.uid===uid);
+    if(!h || h.pending){ return; }
+    h.pending = true;
+    jokerRequests.push({ rid:"r"+(++jokerUidCounter), teamId:teamId, uid:uid, cardId:h.id, target:Number(target)||0 });
+    syncAll();
+}
+
+function applyJokerFx(t, fx){
+    let m;
+    if((m = /^s\+(\d+)(%?)$/.exec(fx))){
+        const n = Number(m[1]);
+        t.budget += m[2] ? Math.round(settings.startBudget*n/100) : n;
+    }
+    else if((m = /^o-(\d+)%$/.exec(fx))){
+        teams.forEach(o=>{ if(o!==t){ o.budget = Math.round(o.budget*(100-Number(m[1]))/100); } });
+    }
+}
+
+function resolveJoker(rid, ok){
+    const i = jokerRequests.findIndex(r=>r.rid===rid);
+    if(i<0){ return; }
+    const r = jokerRequests.splice(i,1)[0];
+    const t = getTeam(r.teamId), j = jokerById(r.cardId);
+    const h = t && t.jokers.find(x=>x.uid===r.uid);
+    if(!t || !h){ syncAll(); return; }
+    if(ok){
+        if(j && j.fx){ applyJokerFx(t, j.fx); }
+        t.jokers = t.jokers.filter(x=>x!==h);
+        addNotice(t, "✅ "+(j?j.name:"Joker")+" uygulandı.");
+    }
+    else{
+        h.pending = false;
+        addNotice(t, "❌ "+(j?j.name:"Joker")+" kullanımı reddedildi, kart elinde.");
+    }
+    syncAll();
+}
+
+function renderJokerOps(){
+    const box = $("jokerOps");
+    if(!box || role!=="mod"){ return; }
+    const reqs = jokerRequests.map(r=>{
+        const t = getTeam(r.teamId), j = jokerById(r.cardId), tg = getTeam(r.target);
+        return `<div class="jOp"><b>${esc(teamLabel(t))}</b> → <b>${esc(j?j.name:"?")}</b>${tg?" • hedef: <b>"+esc(teamLabel(tg))+"</b>":""}
+            <div class="smallNote" style="opacity:1">${esc(j?j.desc:"")}${j&&j.fx?" [otomatik: "+esc(j.fx)+"]":" [manuel uygula]"}</div>
+            <button class="greenBtn" style="width:auto;margin:0 6px 0 0" onclick="resolveJoker('${r.rid}',true)">Onayla</button>
+            <button class="redBtn" style="width:auto;margin:0" onclick="resolveJoker('${r.rid}',false)">Reddet</button></div>`;
+    }).join("");
+    const tm = teams.map(t=>`<div class="jOp"><b>${esc(teamLabel(t))}</b>
+        <button class="blueBtn" style="width:auto;margin:0 8px" onclick="dealJoker(${t.id})">🃏 3 kart sun</button>
+        ${t.draw?"(seçim bekliyor)":""}
+        <span class="smallNote" style="opacity:1">Elinde: ${t.jokers.map(h=>{const j=jokerById(h.id);return esc(j?j.name:"?");}).join(", ")||"—"}</span></div>`).join("");
+    const sig = reqs+tm;
+    if(box.dataset.sig===sig){ return; }
+    box.dataset.sig = sig;
+    box.innerHTML = `<h3>Kullanım istekleri</h3>${reqs||'<div class="smallNote" style="opacity:1">Bekleyen istek yok.</div>'}<h3>Oyuncular</h3>${tm||'<div class="smallNote" style="opacity:1">Oyuncu yok.</div>'}`;
+}
+
 function renderJokers(){
 
     const box = $("jokerTable");
@@ -4114,13 +4306,14 @@ function renderJokers(){
         <td>${i+1}</td>
         <td><input class="nm" type="text" value="${esc(j.name)}" onchange="editJoker('${j.id}','name',this.value)"></td>
         <td><textarea onchange="editJoker('${j.id}','desc',this.value)">${esc(j.desc)}</textarea></td>
+        <td><input class="nm" type="text" value="${esc(j.fx)}" placeholder="boş = manuel" style="min-width:90px" onchange="editJoker('${j.id}','fx',this.value)"></td>
         <td><input class="num" type="number" min="0" step="1" value="${j.count}" onchange="editJoker('${j.id}','count',this.value)"></td>
         <td><button class="redBtn" style="margin:0;padding:5px 9px" onclick="deleteJoker('${j.id}')">Sil</button></td>
     </tr>`).join("");
 
     box.innerHTML = `
         <table class="pool">
-            <thead><tr><th>#</th><th>Joker</th><th>Açıklama</th><th>Adet</th><th></th></tr></thead>
+            <thead><tr><th>#</th><th>Joker</th><th>Açıklama</th><th>Etki</th><th>Stok</th><th></th></tr></thead>
             <tbody>${rows}</tbody>
         </table>
         <div class="smallNote">${jokerDB.length} joker kart</div>`;
@@ -4137,7 +4330,8 @@ function addJoker(){
     if(!name){ alert("Joker adını gir."); return; }
     if(!Number.isFinite(count) || count<0){ alert("Geçerli bir adet gir."); return; }
 
-    jokerDB.push({ id:"j"+(++jokerCounter), name:name, desc:desc, count:count });
+    jokerDB.push({ id:"j"+(++jokerCounter), name:name.toLocaleUpperCase("tr"), desc:desc, count:count, fx:$("newJokerFx").value.trim() });
+    $("newJokerFx").value = "";
 
     $("newJokerName").value = "";
     $("newJokerDesc").value = "";
@@ -4154,6 +4348,7 @@ function editJoker(id, field, val){
 
     if(field==="name"){ j.name = String(val).trim() || j.name; }
     else if(field==="desc"){ j.desc = String(val).trim(); }
+    else if(field==="fx"){ j.fx = String(val).trim(); }
     else if(field==="count"){
         const n = Math.floor(Number(val));
         if(Number.isFinite(n) && n>=0){ j.count = n; }
@@ -4264,6 +4459,8 @@ function buildTeamViewLayout(){
             <div class="resultTag" id="tvAucResult"></div>
         </div>
 
+        <div id="tvJoker"></div>
+
         <h3>İlk 11 (1-4-2-3-1)</h3>
         <div class="pitch" id="tvPitch"></div>
 
@@ -4344,6 +4541,31 @@ let promptSig = "";
 let currentMinBid = 0;
 let currentMyBid = 0;
 
+function renderPlayerJokers(v, readOnly){
+    const box = $("tvJoker");
+    const sig = JSON.stringify([v.draw, v.jokers, v.others, !!readOnly]);
+    if(box.dataset.sig===sig){ return; }
+    box.dataset.sig = sig;
+    let h = "";
+    if(v.draw){
+        h += `<h3>🃏 Bir kart seç</h3><div class="jRow">` +
+            Array.from({length:v.draw},(_,i)=>`<button class="jBack" ${readOnly?"disabled":""} onclick="pickJoker(${i})">🂠<span>Seç</span></button>`).join("") + `</div>`;
+    }
+    if(v.jokers && v.jokers.length){
+        const opts = '<option value="0">Hedef: yok</option>' + (v.others||[]).map(o=>`<option value="${o.id}">${esc(o.name)}</option>`).join("");
+        h += `<h3>🃏 Jokerlerim</h3><div class="jRow">` + v.jokers.map(j=>`<div class="jCard"><b>${esc(j.name)}</b><div class="smallNote" style="opacity:1">${esc(j.desc)}</div>
+            ${readOnly?"":(j.pending ? "<i>Onay bekleniyor…</i>" : `<select id="jt_${j.uid}">${opts}</select><button class="greenBtn" style="margin:6px 0 0" onclick="useJoker('${j.uid}')">Kullan</button>`)}</div>`).join("") + `</div>`;
+    }
+    box.innerHTML = h;
+}
+
+function pickJoker(i){ dispatch({ t:"jokerPick", teamId:myTeamId, cid:myCid, idx:i }); }
+function useJoker(uid){
+    const sel = $("jt_"+uid);
+    if(!confirm("Bu jokeri şimdi kullanmak istiyor musun?")){ return; }
+    dispatch({ t:"jokerUse", teamId:myTeamId, cid:myCid, uid:uid, target:sel?sel.value:0 });
+}
+
 function applyView(v, readOnly){
 
     const box = $("teamView");
@@ -4356,6 +4578,7 @@ function applyView(v, readOnly){
     }
 
     $("tvTitle").textContent = v.playerName || v.teamName;
+    renderPlayerJokers(v, readOnly);
     $("tvLocks").textContent = (v.locked && v.locked.length) ? "🔒 Kilitli mevkiler: "+v.locked.join(", ") : "";
 
     $("stBudget").textContent = fmt(v.budget)+" M€";
@@ -4554,6 +4777,7 @@ function syncAll(){
     renderBids();
     renderLocks();
     renderAuctionControls();
+    renderJokerOps();
 
 }
 

@@ -308,7 +308,7 @@ table.pool input.cl{width:110px;}
 
         <details style="margin:10px 0">
             <summary style="cursor:pointer;font-weight:bold">📥 FC27 reytinglerini toplu içe aktar (fifaindex)</summary>
-            <div class="smallNote" style="opacity:1">fifaindex.com'da çalıştırdığın aktarma kodunun çıktısını (her satır <b>Oyuncu Adı;Reyting</b>) buraya yapıştır. İsimler harf/aksan farkına bakılmadan eşleşir.</div>
+            <div class="smallNote" style="opacity:1">fifaindex.com'da çalıştırdığın aktarma kodunun çıktısını (her satır <b>Oyuncu Adı;Reyting</b>) buraya yapıştır. Ya da fifaindex tablosunu doğrudan kopyalayıp yapıştırabilirsin ("Oy Verin" satırlı ham metin de okunur). İsimler harf/aksan farkına bakılmadan eşleşir.</div>
             <textarea id="fcImportText" rows="6" style="width:100%;padding:8px;border-radius:8px;border:0;font:inherit" placeholder="Pau Cubarsí;88&#10;William Saliba;88"></textarea>
             <button class="blueBtn" style="width:auto;margin:6px 0" onclick="importFcRatings()">Reytingleri uygula</button>
             <div class="smallNote" id="fcImportInfo" style="opacity:1"></div>
@@ -2345,41 +2345,614 @@ let playerMap = new Map();
 function rebuildPlayerMap(){ playerMap = new Map(playerDB.map(p=>[p.id,p])); }
 rebuildPlayerMap();
 
-/* FC27 başlangıç reytingleri (fifaindex, yalnızca erkek oyuncular). Kalanı havuz sekmesindeki içe aktarma kutusuyla eklenir. */
-const FC27_SEED = `Kylian Mbappé;91
-Erling Haaland;91
-Thibaut Courtois;90
-Harry Kane;90
-Ousmane Dembélé;90
-Rodri;90
-Michael Olise;90
-Pedri;90
+/* FC27 başlangıç reytingleri (fifaindex, genel 79 ve üzeri erkek oyuncular). Kalanı havuz sekmesindeki içe aktarma kutusuyla eklenir. */
+const FC27_SEED = `Erling Haaland;91
+Kylian Mbappé;91
 Jude Bellingham;90
+Thibaut Courtois;90
+Ousmane Dembélé;90
+Pedri;90
+Rodri;90
+Harry Kane;90
 Vitinha;90
 Lamine Yamal;90
-Lionel Messi;89
 Bruno Fernandes;89
+Vini Jr.;89
 Gianluigi Donnarumma;89
 Gabriel;89
-Vini Jr.;89
 Khvicha Kvaratskhelia;89
-Nuno Mendes;89
+Lionel Messi;89
 Willian Pacho;89
-Jan Oblak;88
-Virgil van Dijk;88
-Joshua Kimmich;88
-David Raya;88
+Nuno Mendes;89
 Raphinha;88
-Declan Rice;88
-Achraf Hakimi;88
-Luis Díaz;88
-William Saliba;88
 João Neves;88
+Achraf Hakimi;88
+Joshua Kimmich;88
+Jan Oblak;88
+David Raya;88
+Declan Rice;88
+William Saliba;88
+Virgil van Dijk;88
 Marquinhos;87
-Mohamed Salah;87
+Nicolò Barella;87
+Rúben Dias;87
+Gregor Kobel;87
+Mike Maignan;87
+Lautaro Martínez;87
+Jamal Musiala;87
 Alisson;87
+Bukayo Saka;87
+Nico Schlotterbeck;87
 Jonathan Tah;87
-Mike Maignan;87`;
+Dayot Upamecano;87
+Federico Valverde;87
+Julián Alvarez;86
+Alessandro Bastoni;86
+Moisés Caicedo;86
+Marco Carnesecchi;86
+Rayan Cherki;86
+Pau Cubarsí;86
+Marc Cucurella;86
+Frenkie de Jong;86
+Federico Dimarco;86
+Désiré Doué;86
+Enzo Fernández;86
+Joan García;86
+Bruno Guimarães;86
+Viktor Gyökeres;86
+Alexander Isak;86
+Scott McTominay;86
+Diogo Costa;86
+Martin Ødegaard;86
+Fabián Ruiz;86
+Bremer;86
+Dominik Szoboszlai;86
+Florian Wirtz;86
+Bradley Barcola;85
+Hakan Çalhanoğlu;85
+Rúben Neves;85
+Kevin De Bruyne;85
+Paulo Dybala;85
+Hugo Ekitiké;85
+Eric García;85
+Ryan Gravenberch;85
+Marc Guéhi;85
+Serhou Guirassy;85
+Joško Gvardiol;85
+Jules Koundé;85
+Konrad Laimer;85
+Marcos Llorente;85
+Fermín;85
+Emiliano Martínez;85
+Luka Modrić;85
+Felix Nmecha;85
+Victor Osimhen;85
+Cole Palmer;85
+Jordan Pickford;85
+Adrien Rabiot;85
+Antoine Semenyo;85
+Unai Simón;85
+Mile Svilar;85
+Marcus Thuram;85
+Youri Tielemans;85
+Sandro Tonali;85
+Deniz Undav;85
+Granit Xhaka;85
+Trent Alexander-Arnold;84
+Elliot Anderson;84
+Waldemar Anton;84
+Oliver Baumann;84
+Bernardo Silva;84
+Yan Diomande;84
+Jérémy Doku;84
+Cristiano Ronaldo;84
+Eberechi Eze;84
+Wladimiro Falcone;84
+Phil Foden;84
+Éder Militão;84
+Aleix García;84
+Antoine Griezmann;84
+Piero Hincapié;84
+Reece James;84
+Boubacar Kamara;84
+Ibrahima Konaté;84
+Ezri Konsa;84
+Aymeric Laporte;84
+Robert Lewandowski;84
+Manuel Locatelli;84
+Alexis Mac Allister;84
+Gianluca Mancini;84
+Sergej Milinković-Savić;84
+Dani Olmo;84
+Oyarzabal;84
+Nico Paz;84
+Julián Quiñones;84
+Tijjani Reijnders;84
+Morgan Rogers;84
+Rodrygo;84
+Yann Sommer;84
+Aurélien Tchouaméni;84
+Jurriën Timber;84
+Ferran Torres;84
+Nico Williams;84
+Kenan Yıldız;84
+Zubimendi;84
+Manuel Akanji;83
+Isco;83
+Pablo Barrios;83
+João Cancelo;83
+Rafael Leão;83
+De Gea;83
+Rodrigo De Paul;83
+Denzel Dumfries;83
+João Félix;83
+Konstantinos Fortounis;83
+Morgan Gibbs-White;83
+Matthias Ginter;83
+Serge Gnabry;83
+Lewis Hall;83
+Dávid Hancko;83
+Morten Hjulmand;83
+Ibañez;83
+João Pedro;83
+N'Golo Kanté;83
+Kim Min Jae;83
+Stanislav Lobotka;83
+Ademola Lookman;83
+Matheus Nunes;83
+Donyell Malen;83
+Giorgi Mamardashvili;83
+Iñigo Martínez;83
+Mikel Merino;83
+Maximilian Mittelstädt;83
+Evan Ndicka;83
+Nico O'Reilly;83
+Willi Orbán;83
+Gavi;83
+Exequiel Palacios;83
+Aleksandar Pavlović;83
+Pedro Porro;83
+Ivan Provedel;83
+Christian Pulisic;83
+David Raum;83
+Amir Rrahmani;83
+Antonio Rüdiger;83
+Matvey Safonov;83
+Ismael Saibari;83
+Patrik Schick;83
+Alexander Sørloth;83
+Angelo Stiller;83
+Ivan Toney;83
+Trincão;83
+Casemiro;83
+Ollie Watkins;83
+Warren Zaïre-Emery;83
+Marco Asensio;82
+Balde;82
+Christoph Baumgartner;82
+Jan Bednarek;82
+Karim Benzema;82
+Domenico Berardi;82
+Yassine Bounou;82
+Julian Brandt;82
+Ante Budimir;82
+Jonathan Burkardt;82
+Riccardo Calafiori;82
+Yannick Carrasco;82
+Koen Casteels;82
+Murillo;82
+Ricardo Horta;82
+Alphonso Davies;82
+Matthijs de Ligt;82
+Stefan de Vrij;82
+Giovanni Di Lorenzo;82
+Ángel Di María;82
+Éderson;82
+Victor Froholdt;82
+James Garner;82
+José María Giménez;82
+Anthony Gordon;82
+Péter Gulácsi;82
+Danilo Pereira;82
+Dean Henderson;82
+Fabinho;82
+Theo Hernández;82
+Moise Kean;82
+Abdukodir Khusanov;82
+Jakub Kiwior;82
+Orkun Kökçü;82
+Kalidou Koulibaly;82
+Maxence Lacroix;82
+Senne Lammens;82
+Romelu Lukaku;82
+James Maddison;82
+Harry Maguire;82
+Omar Marmoush;82
+Lisandro Martínez;82
+Daniel Muñoz;82
+Juan Musso;82
+Palhinha;82
+Vangelis Pavlidis;82
+Marcus Rashford;82
+Igor Thiago;82
+Cristian Romero;82
+Julian Ryerson;82
+Sancet;82
+Ederson;82
+Marcos Senesi;82
+Benjamin Šeško;82
+Mohamed Simakan;82
+John Stones;82
+Luis Javier Suárez;82
+Edmond Tapsoba;82
+Marc-André ter Stegen;82
+Florian Thauvin;82
+Corentin Tolisso;82
+Leandro Trossard;82
+Christos Tzolis;82
+Joey Veerman;82
+Vivian;82
+Adam Wharton;82
+Mattia Zaccagni;82
+Rodrigo Zalazar;82
+André-Franck Zambo Anguissa;82
+Piotr Zieliński;82
+Rayan Aït-Nouri;81
+Maghnes Akliouche;81
+Omar Alderete;81
+Iago Aspas;81
+Fredrik Aursnes;81
+Maximilian Beier;81
+Sven Botman;81
+Nathaniel Brown;81
+Alessandro Buongiorno;81
+Eduardo Camavinga;81
+Emre Can;81
+Matty Cash;81
+Julian Chabot;81
+Bryan Cristante;81
+Rui Silva;81
+De Frutos;81
+Charles De Ketelaere;81
+Kiernan Dewsbury-Hall;81
+Ousmane Diomande;81
+Abde;81
+Álvaro Carreras;81
+Nacho Fernández;81
+Fornals;81
+Pau Torres;81
+Remo Freuler;81
+Jeremie Frimpong;81
+Álvaro García;81
+Mario Gila;81
+Nico González;81
+Kamil Grabara;81
+Dominik Greif;81
+Mattéo Guendouzi;81
+Kai Havertz;81
+Mario Hermoso;81
+Lucas Hernández;81
+Dean Huijsen;81
+Mauro Júnior;81
+Pierre Kalulu;81
+Michael Kayode;81
+Milos Kerkez;81
+Kouadio Manu Koné;81
+Mateo Kovačić;81
+Andrej Kramarić;81
+Dejan Kulusevski;81
+Robin Le Normand;81
+Estéban Lepaul;81
+Tino Livramento;81
+Castello Lukeba;81
+Kobbie Mainoo;81
+Jean-Philippe Mateta;81
+Antony;81
+Édouard Mendy;81
+Alex Meret;81
+Luis Milla;81
+Henrikh Mkhitaryan;81
+Gerard Moreno;81
+Nordi Mukiele;81
+Vedat Muriqi;81
+David Neres;81
+Manuel Neuer;81
+Moussa Niakhaté;81
+Amadou Onana;81
+Leandro Paredes;81
+Nicolas Pépé;81
+Ivan Perišić;81
+Pubill;81
+Álex Remiro;81
+Koke;81
+Mateo Retegui;81
+Robin Risser;81
+Robin Roefs;81
+Alessio Romagnoli;81
+Marcel Sabitzer;81
+Brice Samba;81
+Mamadou Sangaré;81
+Kaishū Sano;81
+Ismaïla Sarr;81
+Fabian Schär;81
+Alex Scott;81
+Nicolas Seiwald;81
+Matz Sels;81
+Xavi Simons;81
+Milan Škriniar;81
+Son Heung Min;81
+Anderson Talisca;81
+Wojciech Szczęsny;81
+Malick Thiaw;81
+Adrien Thomasson;81
+Khéphren Thuram;81
+Lucas Torreira;81
+Matthieu Udol;81
+Micky van de Ven;81
+Jan Paul van Hecke;81
+Hans Vanaken;81
+Bart Verbruggen;81
+Dušan Vlahović;81
+Luka Vušković;81
+Benjamin White;81
+Harry Wilson;81
+Chris Wood;81
+Denis Zakaria;81
+Nayef Aguerd;80
+Nathan Aké;80
+Yeray;80
+Nadiem Amiri;80
+Ethan Ampadu;80
+Benjamin André;80
+Joelinton;80
+Mauro Arambarri;80
+Ronald Araujo;80
+Carlos Baleba;80
+Folarin Balogun;80
+Harvey Barnes;80
+Gonçalo Inácio;80
+Ayyoub Bouaddi;80
+Uğurcan Çakır;80
+Lamine Camara;80
+Andrea Cambiaso;80
+Elia Caprile;80
+Trevoh Chalobah;80
+Lucas Chevalier;80
+Levi Colwill;80
+Francisco Conceição;80
+Vladimír Coufal;80
+Otávio;80
+Mikkel Damsgaard;80
+Jonathan David;80
+Marten de Roon;80
+Johnny Cardoso;80
+Merih Demiral;80
+Ermedin Demirović;80
+Michele Di Gregorio;80
+Lucas Digne;80
+Ayoub El Kaabi;80
+Youssef En-Nesyri;80
+Mateus Fernandes;80
+Rafa;80
+Youssouf Fofana;80
+Wesley;80
+Davide Frattesi;80
+Matteo Gabbia;80
+Guedes;80
+Gabriel Sara;80
+Amine Gouiri;80
+Pape Gueye;80
+Miguel Gutiérrez;80
+Pierre-Emile Højbjerg;80
+Borja Iglesias;80
+Mathias Jensen;80
+Curtis Jones;80
+Ferdi Kadıoğlu;80
+Caoimhín Kelleher;80
+Tim Kleindienst;80
+Bento;80
+Eli Junior Kroupi;80
+Armand Laurienté;80
+Enzo Le Fée;80
+Lee Kang In;80
+Giovani Lo Celso;80
+Dodi Lukébakio;80
+Andriy Lunin;80
+Robert Sánchez;80
+Noni Madueke;80
+Reinildo;80
+Johan Manzambi;80
+Gabriel Martinelli;80
+Ibrahim Maza;80
+Noussair Mazraoui;80
+Weston McKennie;80
+Ferland Mendy;80
+Nikola Milenković;80
+Vanja Milinković-Savić;80
+Mingueza;80
+Savinho;80
+Thomas Müller;80
+Andrey Santos;80
+Keylor Navas;80
+Christopher Nkunku;80
+Alexander Nübel;80
+Samu;80
+Loïs Openda;80
+Isi;80
+Benjamin Pavard;80
+Ayoze;80
+Matteo Politano;80
+Gonçalo Ramos;80
+Andrei Rațiu;80
+Chris Richards;80
+Andrew Robertson;80
+Antonee Robinson;80
+Kaku;80
+Carlos Romero;80
+Valentin Rongier;80
+Gerónimo Rulli;80
+Noah Sadiki;80
+Alexis Saelemaekers;80
+Davinson Sánchez;80
+Andreas Schjelderup;80
+Jerdy Schouten;80
+David Soria;80
+Matías Soulé;80
+Djed Spence;80
+Leonardo Spinazzola;80
+Anton Stach;80
+Josip Stanišić;80
+James Tarkowski;80
+Fikayo Tomori;80
+Anatoliy Trubin;80
+Adrien Truffert;80
+Alan Varela;80
+Gabri Veiga;80
+Guglielmo Vicario;80
+Nikola Vlašić;80
+Danny Welbeck;80
+Neco Williams;80
+Iñaki Williams;80
+Yoane Wissa;80
+Nick Woltemade;80
+Illia Zabarnyi;80
+Lucas Zelarayán;80
+Carlos Augusto;80
+Tyler Adams;79
+Ola Aina;79
+Yunus Akgün;79
+Marcos Alonso;79
+Mohamed Amoura;79
+Sofyan Amrabat;79
+Joachim Andersen;79
+Maximilian Arnold;79
+Fisnik Asllani;79
+Noah Atubolu;79
+Pierre-Emerick Aubameyang;79
+Emil Audero;79
+Leon Avdullahu;79
+Yasin Ayari;79
+Ridle Baku;79
+Leonardo Balerdi;79
+Valentín Barco;79
+Abdülkerim Bardakcı;79
+Barrenetxea;79
+Bartra;79
+Augusto Batalla;79
+Martin Baturina;79
+Ramy Bensebaini;79
+Rodrigo Bentancur;79
+Yuri Berchiche;79
+Berenguer;79
+Patrick Berg;79
+Sander Berge;79
+Tom Bischof;79
+Denis Bouanga;79
+Enzo Boyomo;79
+Conor Bradley;79
+Jarrad Branthwaite;79
+Christian Burgess;79
+Dan Burn;79
+Dominic Calvert-Lewin;79
+Sergi Cardona;79
+Zeki Çelik;79
+Pep Chavarría;79
+Andreas Christensen;79
+Nathan Collins;79
+Santi Comesaña;79
+Evander;79
+Kevin Danso;79
+Evanilson;79
+Natan;79
+Sergiño Dest;79
+Bafodé Diakité;79
+Paulinho;79
+Berat Djimsiti;79
+Marko Dmitrović;79
+Danilo Doekhi;79
+Artem Dovbyk;79
+Anders Dreyer;79
+Aschraf El Mahdioui;79
+Anthony Elanga;79
+Aleix Febas;79
+Nabil Fekir;79
+Gabriel Jesus;79
+Wesley Fofana;79
+Juan Foyth;79
+Federico Gatti;79
+Carles Gil;79
+Joe Gomez;79
+Pascal Groß;79
+Idrissa Gueye;79
+Malo Gusto;79
+Lukáš Haraslín;79
+Cucho Hernández;79
+Sergio Herrera;79
+Daniel Heuer Fernandes;79
+Bryan Heynen;79
+Santiago Hezze;79
+Isak Hien;79
+Lukáš Hrádecký;79
+Nicolas Jackson;79
+Jauregizar;79
+Álex Jiménez;79
+Daichi Kamada;79
+Justin Kluivert;79
+Robin Koch;79
+Hervé Koffi;79
+Giannis Konstantelias;79
+Odilon Kossounou;79
+Rasmus Kristensen;79
+Florian Lejeune;79
+Bernd Leno;79
+Philipp Lienhart;79
+Diego Llorente;79
+Ruben Loftus-Cheek;79
+Lucas Beraldo;79
+Ian Maatsen;79
+Kevin Mac Allister;79
+Aïssa Mandi;79
+Gerard Martín;79
+Senny Mayulu;79
+Facundo Medina;79
+Georges Mikautadze;79
+Tyrick Mitchell;79
+Endrick;79
+Tyler Morton;79
+Jacob Murphy;79
+Moritz Nicolas;79
+Christian Nørgaard;79
+Azzedine Ounahi;79
+Berke Özer;79
+Joaquín Panichelli;79
+Mario Pašalić;79
+Đorđe Petrović;79
+Yeremy Pino;79
+Lukáš Provod;79
+Nicolas Raskin;79
+Ruiz de Galarreta;79
+Mathew Ryan;79
+Pape Matar Sarr;79
+Malang Sarr;79
+Giorgio Scalvini;79
+Luke Shaw;79
+Dominic Solanke;79
+Carlos Soler;79
+Jens Stage;79
+Pavel Šulc;79
+Daniel Svensson;79
+Dušan Tadić;79
+Malik Tillman;79
+Quinten Timber;79
+James Trafford;79
+Konstantinos Tzolakis;79
+Destiny Udogie;79
+Jonas Urbig;79
+Odysseas Vlachodimos;79
+Julian Weigl;79
+Mats Wieffer;79
+Duván Zapata;79
+Adem Zorgane;79`;
 (function applyFc27Seed(){
     const m = new Map();
     FC27_SEED.split("\n").forEach(l=>{
@@ -4150,18 +4723,34 @@ function importFcRatings(){
     });
 
     const seen = new Set();
-    let ok = 0, dup = 0;
+    let ok = 0;
 
-    $("fcImportText").value.split(/\r?\n/).forEach(l=>{
-        if(!l.trim()){ return; }
+    const lines = $("fcImportText").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+    const entries = [];
+
+    /* Biçim 1: fifaindex sayfasından kopyalanan ham metin
+       (isim / "Oy Verin" / ülke / takım / pozisyon / GENEL / ...) */
+    for(let i=1;i<lines.length;i++){
+        if(lines[i]==="Oy Verin"){
+            const ovr = parseInt(lines[i+4], 10);
+            if(ovr>=40 && ovr<=99){ entries.push([lines[i-1], ovr]); }
+        }
+    }
+
+    /* Biçim 2: Oyuncu Adı;Reyting */
+    lines.forEach(l=>{
+        if(!/[;\t]/.test(l)){ return; }
         const c = l.split(/[;\t]/).map(x=>x.trim()).filter(Boolean);
         const num = c.slice().reverse().find(x=>/^\d{2,3}$/.test(x));
         const name = c.find(x=>/[A-Za-zÀ-ž]/.test(x));
-        if(!name || !num){ return; }
-        const k = normName(name);
-        if(seen.has(k)){ dup++; return; }   /* aynı isim: listedeki ilk (en yüksek) reyting geçerli */
+        if(name && num){ entries.push([name, Number(num)]); }
+    });
+
+    entries.forEach(e=>{
+        const k = normName(e[0]);
+        if(seen.has(k)){ return; }          /* aynı isim: ilk (en yüksek) reyting geçerli */
         const list = byName.get(k);
-        if(list){ seen.add(k); list.forEach(p=>{ p.fc27 = Number(num); }); ok++; }
+        if(list){ seen.add(k); list.forEach(p=>{ p.fc27 = e[1]; }); ok++; }
     });
 
     const missing = playerDB.filter(p=>p.fc27==="" || p.fc27===undefined);

@@ -306,6 +306,13 @@ table.pool input.cl{width:110px;}
             <button class="greenBtn" style="width:auto;margin:0" onclick="addPlayerToPool()">Seçili mevkiye ekle</button>
         </div>
 
+        <details style="margin:10px 0">
+            <summary style="cursor:pointer;font-weight:bold">📥 FC27 reytinglerini toplu içe aktar (fifaindex)</summary>
+            <div class="smallNote" style="opacity:1">fifaindex.com'da çalıştırdığın aktarma kodunun çıktısını (her satır <b>Oyuncu Adı;Reyting</b>) buraya yapıştır. İsimler harf/aksan farkına bakılmadan eşleşir.</div>
+            <textarea id="fcImportText" rows="6" style="width:100%;padding:8px;border-radius:8px;border:0;font:inherit" placeholder="Pau Cubarsí;88&#10;William Saliba;88"></textarea>
+            <button class="blueBtn" style="width:auto;margin:6px 0" onclick="importFcRatings()">Reytingleri uygula</button>
+            <div class="smallNote" id="fcImportInfo" style="opacity:1"></div>
+        </details>
         <div class="tableWrap"><div id="poolTable"></div></div>
     </div>
 
@@ -2338,6 +2345,54 @@ let playerMap = new Map();
 function rebuildPlayerMap(){ playerMap = new Map(playerDB.map(p=>[p.id,p])); }
 rebuildPlayerMap();
 
+/* FC27 başlangıç reytingleri (fifaindex, yalnızca erkek oyuncular). Kalanı havuz sekmesindeki içe aktarma kutusuyla eklenir. */
+const FC27_SEED = `Kylian Mbappé;91
+Erling Haaland;91
+Thibaut Courtois;90
+Harry Kane;90
+Ousmane Dembélé;90
+Rodri;90
+Michael Olise;90
+Pedri;90
+Jude Bellingham;90
+Vitinha;90
+Lamine Yamal;90
+Lionel Messi;89
+Bruno Fernandes;89
+Gianluigi Donnarumma;89
+Gabriel;89
+Vini Jr.;89
+Khvicha Kvaratskhelia;89
+Nuno Mendes;89
+Willian Pacho;89
+Jan Oblak;88
+Virgil van Dijk;88
+Joshua Kimmich;88
+David Raya;88
+Raphinha;88
+Declan Rice;88
+Achraf Hakimi;88
+Luis Díaz;88
+William Saliba;88
+João Neves;88
+Marquinhos;87
+Mohamed Salah;87
+Alisson;87
+Jonathan Tah;87
+Mike Maignan;87`;
+(function applyFc27Seed(){
+    const m = new Map();
+    FC27_SEED.split("\n").forEach(l=>{
+        const c = l.split(";");
+        const k = c[0].toLocaleLowerCase("tr").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim();
+        if(k && !m.has(k)){ m.set(k, Number(c[1])); }
+    });
+    playerDB.forEach(p=>{
+        const k = p.name.toLocaleLowerCase("tr").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim();
+        if(m.has(k) && (p.fc27==="" || p.fc27===undefined)){ p.fc27 = m.get(k); }
+    });
+})();
+
 function getPlayer(id){ return playerMap.get(id); }
 
 function getPlayersByPosition(position){
@@ -3586,7 +3641,7 @@ function handlePeerClose(cid){
     else if(role==="player"){
         if(!conns.mod){ return; }
         delete conns.mod;
-        if(role){ alert("Moderator ile baglanti kesildi."); leaveToHome(); }
+        if(role){ autoRejoin(); }
     }
 
 }
@@ -3791,6 +3846,7 @@ async function createRoom(){
         await openModeratorChannel(roomId);
         setConnStatus("");
         enterGame();
+        saveSessionNow();
     }
     catch(err){
         setConnStatus("");
@@ -3811,6 +3867,7 @@ async function joinRoom(){
         myCid = peer.id;
         setConnStatus("");
         send({ t:"join", cid:myCid, name:myName });
+        saveSessionNow();
         enterGame();
     }
     catch(err){
@@ -3821,6 +3878,9 @@ async function joinRoom(){
 }
 
 function leaveToHome(){
+    clearSession();
+    rejoining = false;
+    showBanner("");
     if(peer){
         const p = peer;
         peer = null;
@@ -3873,7 +3933,7 @@ function fillPositionSelects(){
     ).join("");
 
     d.innerHTML = positions.map(p=>
-        `<option value="${p}">${p}${positionLocked(p)?" 🔒":""}</option>`
+        `<option value="${p}">${p}</option>`
     ).join("");
 
     if(curA && !positionLocked(curA)){ a.value = curA; }
@@ -4076,6 +4136,44 @@ function pickTeam(id){
    HAVUZ YÖNETİMİ (moderatör)
 ============================================================ */
 
+function normName(x){
+    return String(x).toLocaleLowerCase("tr").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/ı/g,"i").replace(/ß/g,"ss").replace(/ø/g,"o").replace(/đ/g,"d").replace(/ł/g,"l").replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim();
+}
+
+function importFcRatings(){
+
+    const byName = new Map();
+    playerDB.forEach(p=>{
+        const k = normName(p.name);
+        if(!byName.has(k)){ byName.set(k, []); }
+        byName.get(k).push(p);
+    });
+
+    const seen = new Set();
+    let ok = 0, dup = 0;
+
+    $("fcImportText").value.split(/\r?\n/).forEach(l=>{
+        if(!l.trim()){ return; }
+        const c = l.split(/[;\t]/).map(x=>x.trim()).filter(Boolean);
+        const num = c.slice().reverse().find(x=>/^\d{2,3}$/.test(x));
+        const name = c.find(x=>/[A-Za-zÀ-ž]/.test(x));
+        if(!name || !num){ return; }
+        const k = normName(name);
+        if(seen.has(k)){ dup++; return; }   /* aynı isim: listedeki ilk (en yüksek) reyting geçerli */
+        const list = byName.get(k);
+        if(list){ seen.add(k); list.forEach(p=>{ p.fc27 = Number(num); }); ok++; }
+    });
+
+    const missing = playerDB.filter(p=>p.fc27==="" || p.fc27===undefined);
+
+    $("fcImportInfo").textContent = ok+" isim eşleşti, havuzda reytingi hâlâ boş olan: "+missing.length+" oyuncu"+
+        (missing.length ? (" (ör. "+missing.slice(0,6).map(p=>p.name).join(", ")+"…) — bunları tablodan elle girebilirsin.") : ".");
+
+    renderPool();
+    syncAll();
+
+}
+
 function renderPool(){
 
     const pos = $("databasePositionSelect").value;
@@ -4116,12 +4214,6 @@ function editPlayer(id, field, val){
     const p = getPlayer(id);
     if(!p){ return; }
 
-    if(positionLocked(p.position)){
-        alert(p.position+" mevkisi kilitli, oyuncuya müdahale edilemez.");
-        renderPool();
-        return;
-    }
-
     if(field==="name"){ p.name = String(val).trim() || p.name; }
     else if(field==="club"){ p.club = String(val).trim(); }
     else if(field==="value"){
@@ -4142,11 +4234,6 @@ function deletePlayer(id){
     const p = getPlayer(id);
     if(!p){ return; }
 
-    if(positionLocked(p.position)){
-        alert(p.position+" mevkisi kilitli, oyuncuya müdahale edilemez.");
-        return;
-    }
-
     if(!confirm(p.name+" havuzdan silinsin mi?"+(p.owner?"\nOyuncu bir oyuncunun kadrosunda, kadrodan da çıkarılır.":""))){ return; }
 
     if(p.owner){
@@ -4165,11 +4252,6 @@ function deletePlayer(id){
 }
 
 function addPlayerToPool(){
-
-    if(positionLocked($("databasePositionSelect").value)){
-        alert("Bu mevki kilitli, oyuncu eklenemez.");
-        return;
-    }
 
     const name = $("newName").value.trim();
     const value = Number($("newValue").value);
@@ -4393,7 +4475,6 @@ function deleteJoker(id){
 function recomputeTop(){
 
     positions.forEach(pos=>{
-        if(positionLocked(pos)){ return; }
         getPlayersByPosition(pos)
             .sort((a,b)=>b.value-a.value)
             .forEach((p,i)=>{ p.top = i<TOP_COUNT; });
@@ -4797,6 +4878,7 @@ function syncAll(){
     renderLocks();
     renderAuctionControls();
     renderJokerOps();
+    scheduleSave();
 
 }
 
@@ -4867,6 +4949,218 @@ function renderBids(){
 
 }
 
+
+
+/* ============================================================
+   SAYFA YENİLEME KORUMASI + KALDIĞI YERDEN DEVAM
+============================================================ */
+
+const SESSION_KEY = "mercato-session-v1";
+let saveTimer = null;
+let rejoining = false;
+
+/* Oyundayken sayfadan çıkılırsa tarayıcı onay sorar.
+   (Tarayıcılar güvenlik gereği kendi standart mesajını gösterir.) */
+window.addEventListener("beforeunload", e=>{
+    if(role){
+        saveSessionNow();
+        e.preventDefault();
+        e.returnValue = "Oyundan çıkmak istiyor musun? Emin misin?";
+        return e.returnValue;
+    }
+});
+window.addEventListener("pagehide", ()=>{ if(role){ saveSessionNow(); } });
+
+function showBanner(text){
+    let b = document.getElementById("connBanner");
+    if(!text){ if(b){ b.remove(); } return; }
+    if(!b){
+        b = document.createElement("div");
+        b.id = "connBanner";
+        b.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:9999;background:#f39c12;color:#111;text-align:center;padding:8px;font-weight:bold;";
+        document.body.appendChild(b);
+    }
+    b.textContent = text;
+}
+
+function idMap(o){
+    const r = {};
+    Object.keys(o||{}).forEach(k=>{ if(o[k]){ r[k] = o[k].id; } });
+    return r;
+}
+function objFromIds(m){
+    const r = {};
+    Object.keys(m||{}).forEach(k=>{ const p = getPlayer(m[k]); if(p){ r[k] = p; } });
+    return r;
+}
+
+function buildSnapshot(){
+
+    if(role==="player"){
+        return { v:1, role:"player", roomId:roomId, myName:myName };
+    }
+
+    return {
+        v:1, role:"mod", roomId:roomId, myName:myName,
+        settings:settings, pidCounter:pidCounter,
+        playerDB:playerDB,
+        teams:teams.map(t=>({ ...t, cid:null, starters:idMap(t.starters), bench:idMap(t.bench) })),
+        auction:{
+            active:auction.active, position:auction.position,
+            queue:auction.queue.map(p=>p.id), index:auction.index,
+            current:auction.current ? auction.current.id : null,
+            bids:auction.bids, seq:auction.seq,
+            eligible:[...auction.eligible], bestIds:[...auction.bestIds],
+            timeLeft:auction.timeLeft, result:auction.result,
+            finished:auction.finished, paused:auction.paused
+        },
+        saleRound:saleRound, auctionLog:auctionLog,
+        lockedPositions:[...lockedPositions], jokerUnlocked:[...jokerUnlocked],
+        jokerDB:jokerDB, jokerCounter:jokerCounter, jokerUidCounter:jokerUidCounter, jokerRequests:jokerRequests
+    };
+
+}
+
+function saveSessionNow(){
+    clearTimeout(saveTimer); saveTimer = null;
+    if(!role || !roomId){ return; }
+    try{ localStorage.setItem(SESSION_KEY, JSON.stringify(buildSnapshot())); }catch(e){ console.warn("Kayıt yapılamadı", e); }
+}
+function scheduleSave(){
+    if(saveTimer){ return; }
+    saveTimer = setTimeout(saveSessionNow, 1200);
+}
+function clearSession(){
+    clearTimeout(saveTimer); saveTimer = null;
+    try{ localStorage.removeItem(SESSION_KEY); }catch(e){}
+}
+
+function restoreModState(d){
+
+    settings = d.settings || settings;
+    pidCounter = d.pidCounter || pidCounter;
+    playerDB = d.playerDB; rebuildPlayerMap();
+
+    teams = d.teams.map(t=>({ ...t, cid:null, starters:objFromIds(t.starters), bench:objFromIds(t.bench) }));
+
+    const a = d.auction;
+    clearAuctionTimers();
+    auction = freshAuction();
+    Object.assign(auction, {
+        active:a.active, position:a.position,
+        queue:a.queue.map(getPlayer).filter(Boolean), index:a.index,
+        current:a.current ? getPlayer(a.current) : null,
+        bids:a.bids || {}, seq:a.seq || 0,
+        eligible:new Set(a.eligible), bestIds:new Set(a.bestIds),
+        timeLeft:a.timeLeft, result:a.result, finished:a.finished, paused:a.paused
+    });
+    /* Yenileme sırasında süren ihale güvenli şekilde DURDURULMUŞ geri gelir. */
+    if(auction.current && !auction.finished){ auction.paused = true; }
+
+    saleRound = d.saleRound || saleRound;
+    auctionLog = d.auctionLog || [];
+    lockedPositions = new Set(d.lockedPositions || []);
+    jokerUnlocked.clear(); (d.jokerUnlocked||[]).forEach(x=>jokerUnlocked.add(x));
+    jokerDB = d.jokerDB || jokerDB;
+    jokerCounter = d.jokerCounter || jokerCounter;
+    jokerUidCounter = d.jokerUidCounter || jokerUidCounter;
+    jokerRequests = d.jokerRequests || [];
+
+}
+
+const sleep = ms => new Promise(r=>setTimeout(r, ms));
+
+async function resumeModerator(d){
+
+    role = "mod"; roomId = d.roomId; myName = d.myName || "Moderator";
+    restoreModState(d);
+    previewTeamId = null;
+    fillPositionSelects();
+    renderTeamSelect();
+    showBanner("Oda yeniden açılıyor…");
+
+    let lastErr = null;
+    for(let i=0;i<8;i++){
+        try{
+            if(peer){ try{ peer.destroy(); }catch(e){} peer = null; }
+            conns = {}; peerReady = false;
+            await openModeratorChannel(roomId);
+            lastErr = null; break;
+        }
+        catch(err){ lastErr = err; await sleep(2500); }
+    }
+    showBanner("");
+
+    if(lastErr){
+        alert("Oda yeniden açılamadı: "+lastErr.message+"\nSayfayı bir kez daha yenile; kayıtlı oyun silinmedi.");
+        role = null;
+        return;
+    }
+
+    enterGame();
+    saveSessionNow();
+
+    if(auctionRunning()){
+        alert("Oyun kaldığı yerden geri yüklendi.\nİhale DURDURULDU; hazır olunca ▶ İhaleye Devam Et'e bas. Oyuncular otomatik yeniden bağlanacak.");
+    }
+
+}
+
+/* Oyuncu: bağlantı koparsa ya da sayfa yenilenirse aynı isimle odaya geri döner. */
+async function autoRejoin(){
+
+    if(rejoining || !roomId || !myName){ return; }
+    rejoining = true;
+    role = "player";
+    showBanner("Bağlantı koptu, yeniden bağlanılıyor…");
+
+    for(let i=0;i<40 && rejoining;i++){
+        try{
+            if(peer){ try{ peer.destroy(); }catch(e){} peer = null; }
+            conns = {}; peerReady = false; pendingQueue = [];
+            await openPlayerChannel(roomId);
+            myCid = peer.id;
+            send({ t:"join", cid:myCid, name:myName });
+            rejoining = false;
+            showBanner("");
+            saveSessionNow();
+            enterGame();
+            return;
+        }
+        catch(err){ await sleep(3000); }
+    }
+
+    if(rejoining){
+        rejoining = false;
+        showBanner("");
+        alert("Moderatöre bağlanılamadı.");
+        leaveToHome();
+    }
+
+}
+
+function tryResumeSession(){
+
+    let d = null;
+    try{ d = JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); }catch(e){}
+    if(!d || !d.roomId){ return; }
+
+    const who = d.role==="mod" ? "moderatör" : "oyuncu ("+d.myName+")";
+    if(!confirm("Yarım kalan bir oyun bulundu (Oda: "+d.roomId+", "+who+").\nKaldığın yerden devam etmek istiyor musun?")){
+        clearSession();
+        return;
+    }
+
+    if(d.role==="mod" && d.playerDB && d.teams){ resumeModerator(d); }
+    else if(d.role==="player"){
+        roomId = d.roomId; myName = d.myName;
+        autoRejoin();
+    }
+    else{ clearSession(); }
+
+}
+
+setTimeout(tryResumeSession, 80);
 
 </script>
 

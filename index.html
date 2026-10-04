@@ -3217,7 +3217,7 @@ function createTeams(){
 function getTeam(id){ return teams.find(t=>t.id===id); }
 
 function sumSlots(obj){
-    return Object.values(obj).reduce((a,p)=>a+p.value,0);
+    return Object.values(obj).reduce((a,p)=>a+(p?p.value:0),0);
 }
 
 function addNotice(team, text){
@@ -3907,6 +3907,7 @@ function finishWholeAuction(){
     /* Joker süreleri: yasak, dokunulmazlık, sponsor geliri */
     teams.forEach(t=>{
         if(t.banTurns>0){ t.banTurns--; }
+        t.freeze = false;
         if(t.immune>0 && t.immune<99){ t.immune--; }
         t.banPlayer = null;
         if(t.income && t.income.turns>0){
@@ -4202,7 +4203,7 @@ function buildView(team){
         locked:[...lockedPositions].filter(positionLocked),
         draw:team.draw ? team.draw.length : 0,
         jActive:(team.active||[]).concat(team.banTurns>0?["⛔ Teklif yasağı ("+team.banTurns+" mevki)"]:[],team.forceBuy?["⚠️ Zorla alım aktif"]:[],team.sellBonus?["📈 Satış bonusu aktif"]:[],team.reflect?["🪞 Yansıtma aktif"]:[], team.shield>0?["🛡 Kalkan x"+team.shield]:[], team.immune>0?["🛡 Dokunulmaz"]:[]),
-        jokers:team.jokers.map(h=>{ const j=jokerById(h.id); return { uid:h.uid, name:j?j.name:"?", desc:j?j.desc:"", pending:h.pending }; }),
+        jokers:team.jokers.map(h=>{ const j=jokerById(h.id); return { uid:h.uid, name:j?j.name:"?", desc:j?j.desc:"", pending:h.pending, needSlot:!!(j&&/(^|\s)(injure|swap|takeover|plock|sellown|sellbench)/.test(j.fx||"")) }; }),
         others:teams.filter(o=>o!==team).map(o=>({ id:o.id, name:teamLabel(o) })),
         notices:team.notices.slice(-6)
     };
@@ -4417,7 +4418,7 @@ function onNet(msg){
         if(msg.t==="bid"){ coreBid(team.id, Number(msg.amount)); }
         else if(msg.t==="sellAnswer"){ coreSellAnswer(team.id, msg.playerId || null); }
         else if(msg.t==="jokerPick"){ coreJokerPick(team.id, Number(msg.idx)); }
-        else if(msg.t==="jokerUse"){ coreJokerUse(team.id, String(msg.uid), msg.target); }
+        else if(msg.t==="jokerUse"){ coreJokerUse(team.id, String(msg.uid), msg.target, msg.slot); }
         else if(msg.t==="hello"){ broadcastViews(); }
         return;
     }
@@ -4996,14 +4997,15 @@ function coreJokerPick(teamId, idx){
     syncAll();
 }
 
-function coreJokerUse(teamId, uid, target){
+function coreJokerUse(teamId, uid, target, slot){
     const t = getTeam(teamId);
     const h = t && t.jokers.find(x=>x.uid===uid);
     if(!h || h.pending){ return; }
     if(h.cantUseOn && h.cantUseOn===Number(target)){ addNotice(t,"❌ Bu kartı o oyuncuya karşı kullanamazsın."); syncAll(); return; }
     if(h.blocked && h.blocked===t.id){ addNotice(t,"🚫 Bu kart bloklandı, kullanamazsın."); syncAll(); return; }
+    if(t.freeze){ addNotice(t,"🧊 Kadron dondurulmuş, joker kullanamazsın."); syncAll(); return; }
     h.pending = true;
-    jokerRequests.push({ rid:"r"+(++jokerUidCounter), teamId:teamId, uid:uid, cardId:h.id, target:Number(target)||0 });
+    jokerRequests.push({ rid:"r"+(++jokerUidCounter), teamId:teamId, uid:uid, cardId:h.id, target:Number(target)||0, slot:slot||"" });
     syncAll();
 }
 
@@ -5027,7 +5029,7 @@ const JOKER_FX = {
  "BÜTÇE KARIŞIKLIĞI":"swapb","SPONSORLUK ANLAŞMASI":"inc:20:3",
  "VETO HAKKI":"veto","YİYİN BİRBİRİNİZİ":"basepct:50",
  "AÇIK ARTIRMA BLÖFÜ (REST ÇEKME)":"lockbid:20","MENAJER KOMİSYONU KRİZİ":"commission:20",
- "YANSITMA KALKANI":"reflect","KART HIRSIZI":"stealcard","RANDOM KART BLOĞU":"blockcard"
+ "YANSITMA KALKANI":"reflect","KADRO DEĞİŞİMİ":"swapsquad","TRANSFER TAKASI":"swap:20","OYUNCU HIRSIZI":"swap:0","TAKAS ZORLAMASI":"swap:0","GASP":"swap:0","EL KOYMA":"takeover","GECE YARISI BASKINI":"takeover","SAKATLIK KABUSU":"injure:50","SAKATLIK ŞANSI":"injure","EKSPRES SATIŞ":"sellown:100","ERKEN SATIŞ PRİMİ":"sellown:110","DEĞER ŞİŞİRME":"sellown:200","YEDEK SATMA HAKKI":"sellbench:50","YEDEK PAZARI":"sellbench:120","TOPLU YEDEK SATIŞI":"rbench","KADRO KİLİDİ":"plock","KAŞAR FUTBOLCU":"plock","SADAKAT BONUSU":"plock","SESSİZ OPERASYON":"plock","KADRO DONDURMA":"freeze","KART HIRSIZI":"stealcard","RANDOM KART BLOĞU":"blockcard"
 };
 jokerDB.forEach(j=>{ if(!j.fx && JOKER_FX[j.name]){ j.fx = JOKER_FX[j.name]; } });
 
@@ -5040,9 +5042,9 @@ function payAmount(team, amount){
 }
 
 /* Karta yazan kuralı oyuna işler. Hata varsa {err}, başarılıysa {note} döner. */
-function applyJokerFx(t, j, tg){
+function applyJokerFx(t, j, tg, slot){
     const ops = (j.fx||"").split(/\s+/).filter(Boolean);
-    const attack = ops.some(o=>/^(ban|banp|t-)/.test(o));
+    const attack = ops.some(o=>/^(ban|banp|t-|injure|swap:|takeover|swapsquad|freeze)/.test(o));
     if(attack){
         if(!tg){ return { err:"Bu kart için oyuncu hedef seçmedi. Reddet ya da oyuncudan tekrar kullanmasını iste." }; }
         if(tg.immune>0){ addNotice(tg,"🛡 "+j.name+" kartı dokunulmazlığın yüzünden işlemedi."); return { note:"Hedef dokunulmaz, etki işlemedi." }; }
@@ -5103,6 +5105,59 @@ function applyJokerFx(t, j, tg){
                 auction.result=null; auction.current=null; addNotice(cwt,"💸 Komisyon ödeyemedin ("+cfee+" M€), transfer iptal!");
             } else { cwt.budget-=cfee; t.budget+=cfee; addNotice(cwt,"💸 "+cfee+" M€ komisyon ödedi."); }
         }
+        else if(k==="injure"||k==="swap"||k==="takeover"){
+            if(!slot){ return { err:"Oyuncu için mevki seçilmemiş." }; }
+            const tp = tg.starters[slot];
+            if(!tp){ return { err:"Hedefin bu mevkide as oyuncusu yok." }; }
+            if(tp.locked){ return { note:"Oyuncu kilitli, etki işlemedi." }; }
+            if(k==="injure"){
+                if(a && tp.value>Number(a)){ return { err:"Oyuncu "+a+" M€ üstü, kart işlemez." }; }
+                const bp = tg.bench[slot]; tp.injured = true; tg.starters[slot] = bp||null; tg.bench[slot] = tp;
+                addNotice(tg,"🤕 "+tp.name+" sakatlandı, yedeğiyle devam.");
+            }
+            else if(k==="swap"){
+                const mp = t.starters[slot];
+                if(!mp){ return { err:"Senin bu mevkide as oyuncun yok." }; }
+                const cap=Number(a)||0; if(cap && Math.abs(mp.value-tp.value)>cap){ return { err:"Değer farkı "+cap+" M€ üstü olamaz." }; }
+                t.starters[slot]=tp; tg.starters[slot]=mp; tp.owner=t.id; mp.owner=tg.id;
+                addNotice(tg,"🔁 "+tp.name+" ↔ "+mp.name+" takas edildi.");
+            }
+            else{
+                if(t.budget<tp.value){ return { err:"Bütçen yetmiyor ("+tp.value+" M€)." }; }
+                const mp = t.starters[slot];
+                if(mp){ if(!t.bench[slot]){ t.bench[slot]=mp; } else { t.budget+=mp.value; mp.owner=null; addNotice(t,"ℹ️ Yedek mevkin dolu: "+mp.name+" piyasaya bırakıldı (+"+mp.value+" M€)."); } }
+                t.budget-=tp.value; tg.budget+=tp.value; t.starters[slot]=tp; tg.starters[slot]=null; tp.owner=t.id;
+                addNotice(tg,"🏴 "+tp.name+" elinden alındı (+"+tp.value+" M€).");
+            }
+        }
+        else if(k==="sellown"){
+            const sp = slot && t.starters[slot];
+            if(!sp){ return { err:"Bu mevkide as oyuncun yok." }; }
+            const gain = Math.min(Number(b||9999), Math.round(sp.value*Number(a||100)/100));
+            t.budget+=gain; t.starters[slot]=null; sp.owner=null; t.soldCount=(t.soldCount||0)+1;
+            addNotice(t,"💰 "+sp.name+" satıldı: +"+gain+" M€");
+        }
+        else if(k==="sellbench"){
+            const bp = slot && t.bench[slot];
+            if(!bp){ return { err:"Bu mevkide yedek oyuncun yok." }; }
+            const gain = Math.round(bp.value*Number(a||50)/100);
+            t.budget+=gain; t.bench[slot]=null; bp.owner=null; addNotice(t,"💰 Yedek "+bp.name+" satıldı: +"+gain+" M€");
+        }
+        else if(k==="rbench"){
+            const rich = teams.filter(o=>o!==t).sort((x,y)=>sumSlots(y.starters)-sumSlots(x.starters))[0];
+            if(rich){ const g=sumSlots(rich.bench); t.budget+=g; addNotice(t,"💰 "+teamLabel(rich)+" yedeklerinin değeri kadar +"+g+" M€"); }
+        }
+        else if(k==="plock"){
+            const lp = slot && t.starters[slot];
+            if(!lp){ return { err:"Bu mevkide as oyuncun yok." }; }
+            lp.locked = true; addNotice(t,"🔒 "+lp.name+" kilitlendi, kimse etkileyemez.");
+        }
+        else if(k==="swapsquad"){
+            [t.starters,tg.starters]=[tg.starters,t.starters]; [t.bench,tg.bench]=[tg.bench,t.bench];
+            [t,tg].forEach(x=>Object.values(x.starters).concat(Object.values(x.bench)).forEach(p=>{ if(p){ p.owner=x.id; } }));
+            addNotice(tg,"🔄 Kadron "+teamLabel(t)+" ile değiştirildi.");
+        }
+        else if(k==="freeze"){ tg.freeze=true; addNotice(tg,"🧊 "+j.name+": 1 mevki boyunca joker kullanamazsın."); }
         else if(k==="reflect"){ t.reflect=true; addNotice(t,"🪞 YANSITMA KALKANI aktif."); }
         else if(k==="copy"){ addNotice(t,"📋 HASARLI KALKAN: Sana kullanılan kartın kopyasını aldın."); }
         else if(k==="stealcard"){
@@ -5129,7 +5184,7 @@ function resolveJoker(rid, ok){
     const h = t && t.jokers.find(x=>x.uid===r.uid);
     if(!t || !h){ jokerRequests.splice(i,1); syncAll(); return; }
     if(ok){
-        const res = j ? applyJokerFx(t, j, tg) : { note:"" };
+        const res = j ? applyJokerFx(t, j, tg, r.slot) : { note:"" };
         if(res.err){ alert(res.err); return; }
         jokerRequests.splice(i,1);
         t.jokers = t.jokers.filter(x=>x!==h);
@@ -5429,7 +5484,7 @@ function renderPlayerJokers(v, readOnly){
     if(v.jokers && v.jokers.length){
         const opts = '<option value="0">Hedef: yok</option>' + (v.others||[]).map(o=>`<option value="${o.id}">${esc(o.name)}</option>`).join("");
         h += `<h3>🃏 Jokerlerim</h3><div class="jRow">` + v.jokers.map(j=>`<div class="jCard"><b>${esc(j.name)}</b><div class="smallNote" style="opacity:1">${esc(j.desc)}</div>
-            ${readOnly?"":(j.pending ? "<i>Onay bekleniyor…</i>" : `<select id="jt_${j.uid}">${opts}</select><button class="greenBtn" style="margin:6px 0 0" onclick="useJoker('${j.uid}')">Kullan</button>`)}</div>`).join("") + `</div>`;
+            ${readOnly?"":(j.pending ? "<i>Onay bekleniyor…</i>" : `<select id="jt_${j.uid}">${opts}</select>${j.needSlot?`<select id="js_${j.uid}">${SLOTS.map(x=>`<option value="${x.key}">${x.label}</option>`).join("")}</select>`:""}<button class="greenBtn" style="margin:6px 0 0" onclick="useJoker('${j.uid}')">Kullan</button>`)}</div>`).join("") + `</div>`;
     }
     if(v.jActive && v.jActive.length){ h += `<h3>✅ Aktif jokerler</h3><div class="smallNote" style="opacity:1">${v.jActive.map(esc).join(" • ")}</div>`; }
     box.innerHTML = h;
@@ -5439,7 +5494,7 @@ function pickJoker(i){ dispatch({ t:"jokerPick", teamId:myTeamId, cid:myCid, idx
 function useJoker(uid){
     const sel = $("jt_"+uid);
     if(!confirm("Bu jokeri şimdi kullanmak istiyor musun?")){ return; }
-    dispatch({ t:"jokerUse", teamId:myTeamId, cid:myCid, uid:uid, target:sel?sel.value:0 });
+    dispatch({ t:"jokerUse", teamId:myTeamId, cid:myCid, uid:uid, target:sel?sel.value:0, slot:($("js_"+uid)||{}).value||"" });
 }
 
 function applyView(v, readOnly){

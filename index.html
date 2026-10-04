@@ -245,6 +245,16 @@ table.pool input.cl{width:110px;}
                 <button class="blueBtn" onclick="startAuction()">İhaleyi Başlat</button>
                 <button id="pauseBtn" class="orangeBtn greenBtn hidden" onclick="togglePauseAuction()">⏸ İhaleyi Durdur</button>
                 <button id="endBtn" class="redBtn hidden" onclick="endAuction()">⏹ İhaleyi Bitir</button>
+                <button id="sellBtn" class="greenBtn hidden" onclick="sellNow()">✅ Sat (en yüksek teklife)</button>
+                <div id="countBox" class="hidden" style="margin:8px 0">
+                    <label class="smallNote" style="opacity:1">⏱ Geri sayım (sn) — ihaleden bağımsız, istediğin an başlat</label>
+                    <div style="display:flex;gap:6px;align-items:center;margin-top:4px">
+                        <input id="countSecInput" type="number" min="1" step="1" value="10" style="width:80px;padding:8px;border-radius:8px;border:0">
+                        <button class="orangeBtn" style="width:auto;margin:0" onclick="startCountdown()">Başlat</button>
+                        <button class="grayBtn" style="width:auto;margin:0" onclick="cancelCountdown()">İptal</button>
+                    </div>
+                    <label class="smallNote" style="opacity:1;display:block;margin-top:4px"><input id="countAutoSell" type="checkbox" checked> Süre bitince otomatik sat</label>
+                </div>
                 <div class="smallNote" id="auctionCtlInfo"></div>
                 <div class="smallNote">
                     Liste: %35 her zaman mevkinin en iyi 4 oyuncusundan, %35 bir kademe düşük orta grup, %30 düşük grup. Sıra rastgele. (10 yazarsan 11 kişilik liste = 4 + 4 + 3.)
@@ -281,6 +291,11 @@ table.pool input.cl{width:110px;}
 
         <!-- SAĞ: MODERATOR ÖZETİ -->
         <div class="modOnly">
+            <div class="panel" id="modFeedPanel">
+                <h2>🔔 Bildirimler &amp; Onaylar</h2>
+                <div id="modFeed"></div>
+            </div>
+
             <div class="panel">
                 <h2>📋 İhale Listesi</h2>
                 <div id="auctionQueue" class="auctionQueue">Henüz liste oluşturulmadı.</div>
@@ -3193,7 +3208,9 @@ function freshAuction(){
         timeLeft:0,
         result:null,
         finished:false,
-        paused:false
+        paused:false,
+        countRunning:false,
+        autoSell:true
     };
 }
 
@@ -3689,12 +3706,44 @@ function loadNextAuctionPlayer(){
     auction.seq = 0;
     auction.result = null;
     auction.active = true;
-    auction.timeLeft = AUCTION_TIMER;
-
-    auction.timer = setInterval(auctionTick, 1000);
+    auction.timeLeft = 0;
+    auction.countRunning = false;
+    auction.timer = null;
 
     syncAll();
 
+}
+
+/* Moderatör istediği an süre yazıp başlatır; ihaleden bağımsızdır. */
+function startCountdown(){
+    if(role!=="mod" || !auction.active || auction.paused){ return; }
+    const sec = Math.floor(Number($("countSecInput").value));
+    if(!Number.isFinite(sec) || sec<=0){ alert("Geçerli bir süre (saniye) yaz."); return; }
+    clearInterval(auction.timer);
+    auction.timeLeft = sec;
+    auction.countRunning = true;
+    auction.autoSell = $("countAutoSell").checked;
+    auction.timer = setInterval(auctionTick, 1000);
+    modNote("⏱ Geri sayım başladı: "+sec+" sn"+(auction.autoSell?" (bitince satılır)":""));
+    syncAll();
+}
+
+function cancelCountdown(){
+    if(role!=="mod"){ return; }
+    clearInterval(auction.timer);
+    auction.timer = null;
+    auction.countRunning = false;
+    auction.timeLeft = 0;
+    syncAll();
+}
+
+/* Moderatör "Sat" der: en yüksek teklif sahibine satılır. */
+function sellNow(){
+    if(role!=="mod" || !auction.active || auction.paused){ return; }
+    const n = Object.keys(auction.bids).length;
+    if(!n && !confirm("Hiç teklif yok. Oyuncu satılmadan geçilsin mi?")){ return; }
+    auction.countRunning = false;
+    finishCurrentAuction();
 }
 
 function auctionTick(){
@@ -3703,7 +3752,11 @@ function auctionTick(){
 
     if(auction.timeLeft<=0){
         auction.timeLeft = 0;
-        finishCurrentAuction();
+        auction.countRunning = false;
+        clearInterval(auction.timer);
+        auction.timer = null;
+        if(auction.autoSell){ finishCurrentAuction(); }
+        else{ modNote("⏱ Süre bitti, satış kararı sende."); syncAll(); }
         return;
     }
 
@@ -3746,9 +3799,9 @@ function resumeAuction(){
     teams.forEach(t=>addNotice(t, "▶ İhale devam ediyor."));
 
     if(auction.active){
-        /* Oyuncu açık ihaledeydi: kaldığı saniyeden devam. */
+        /* Geri sayım çalışıyorsa kaldığı saniyeden devam. */
         clearInterval(auction.timer);
-        auction.timer = setInterval(auctionTick, 1000);
+        if(auction.countRunning){ auction.timer = setInterval(auctionTick, 1000); }
     }
     else{
         /* Sonuç ekranındaydı: sıradaki oyuncuya geç. */
@@ -3806,6 +3859,8 @@ function renderAuctionControls(){
     const run = auctionRunning();
 
     pb.classList.toggle("hidden", !run);
+    $("sellBtn").classList.toggle("hidden", !(run && auction.active && !auction.paused));
+    $("countBox").classList.toggle("hidden", !(run && auction.active && !auction.paused));
     eb.classList.toggle("hidden", !run);
 
     pb.textContent = auction.paused ? "▶ İhaleye Devam Et" : "⏸ İhaleyi Durdur";
@@ -3884,6 +3939,7 @@ function finishCurrentAuction(){
 
     if(auctionLog.length>40){ auctionLog.shift(); }
 
+    modNote(winner ? "💰 SATILDI: "+player.name+" → "+teamLabel(winner)+" ("+fmt(result.bid)+" M€)" : "⚪ Satılmadı: "+player.name);
     auction.result = result;
     auction.index++;
 
@@ -3938,6 +3994,13 @@ function finishWholeAuction(){
    OYUNCU EYLEMLERİ (moderatör tarafında doğrulanır)
 ============================================================ */
 
+/* Minimum teklif: ilk teklif oyuncunun değeri; sonra en yüksek tekliften yüksek olmalı. */
+function auctionMinBid(){
+    const vals = Object.values(auction.bids).map(b=>b.amount);
+    const top = vals.length ? Math.max(...vals) : 0;
+    return top ? top+1 : auction.current.value;
+}
+
 function coreBid(teamId, amount){
 
     const team = getTeam(teamId);
@@ -3962,9 +4025,13 @@ function coreBid(teamId, amount){
 
     if(!Number.isFinite(amount) || amount<=0){ return fail("Geçerli bir teklif gir."); }
 
-    const minimum = auction.current.value;
+    const bidVals = Object.values(auction.bids).map(b=>b.amount);
+    const topBid = bidVals.length ? Math.max(...bidVals) : 0;
+    const minimum = auctionMinBid();
 
-    if(amount<minimum){ return fail("Minimum teklif: "+fmt(minimum)+" M€"); }
+    if(amount<minimum){
+        return fail(topBid ? "Verilen en yüksek teklif "+fmt(topBid)+" M€. Aynı fiyatı veremezsin, en az "+fmt(minimum)+" M€ ver." : "Minimum teklif: "+fmt(minimum)+" M€");
+    }
 
     const prev = auction.bids[team.id];
 
@@ -3979,9 +4046,6 @@ function coreBid(teamId, amount){
     }
 
     auction.bids[team.id] = { amount:amount, seq:++auction.seq };
-
-    /* Her yeni teklifte süre 10 saniyeye döner. */
-    auction.timeLeft = AUCTION_TIMER;
 
     addNotice(team, "Teklifin alındı: "+fmt(amount)+" M€");
 
@@ -4164,12 +4228,13 @@ function buildView(team){
             active:auction.active,
             paused:auction.paused,
             timeLeft:auction.timeLeft,
+            counting:auction.countRunning,
             eligible:auction.eligible.has(team.id),
             myBid: mine ? mine.amount : 0,
             lastBid: (auction.eligible.has(team.id) && auction.active)
                 ? Object.values(auction.bids).reduce((m,b)=> (!m || b.seq>m.seq) ? b : m, null)?.amount || 0
                 : 0,
-            minBid:cur.value,
+            minBid:auctionMinBid(),
             result:null,
             resultBid:0
         };
@@ -5047,6 +5112,7 @@ function dealJoker(teamId){
     const pool = jokerDB.filter(j=>j.count>0).sort(()=>Math.random()-0.5).slice(0,3);
     if(!pool.length){ alert("Stokta joker kart yok."); return; }
     t.draw = pool.map(j=>j.id);
+    modNote("🃏 "+teamLabel(t)+" için kart seçimi başlatıldı");
     addNotice(t, "🃏 Joker hakkın var: 3 karttan birini seç!");
     syncAll();
 }
@@ -5078,6 +5144,7 @@ function coreJokerPick(teamId, idx){
     if(!j){ syncAll(); return; }
     if(j.count>0){ j.count--; }
     t.jokers.push({ uid:"u"+(++jokerUidCounter), id:j.id, pending:false });
+    modNote("🃏 "+teamLabel(t)+" bir joker seçti");
     addNotice(t, "🃏 Joker kazandın: "+j.name);
     syncAll();
 }
@@ -5089,6 +5156,7 @@ function coreJokerUse(teamId, uid, target, slot){
     if(h.cantUseOn && h.cantUseOn===Number(target)){ addNotice(t,"❌ Bu kartı o oyuncuya karşı kullanamazsın."); syncAll(); return; }
     if(h.blocked && h.blocked===t.id){ addNotice(t,"🚫 Bu kart bloklandı, kullanamazsın."); syncAll(); return; }
     if(t.freeze){ addNotice(t,"🧊 Kadron dondurulmuş, joker kullanamazsın."); syncAll(); return; }
+    modNote("🃏 "+teamLabel(t)+" joker kullanmak istiyor: "+(jokerById(h.id)||{name:"?"}).name+" — ONAYINI BEKLİYOR");
     h.pending = true;
     jokerRequests.push({ rid:"r"+(++jokerUidCounter), teamId:teamId, uid:uid, cardId:h.id, target:Number(target)||0, slot:slot||"" });
     syncAll();
@@ -5265,6 +5333,7 @@ function resolveJoker(rid, ok){
     const i = jokerRequests.findIndex(r=>r.rid===rid);
     if(i<0){ return; }
     const r = jokerRequests[i];
+    modNote((ok?"✅ Onaylandı: ":"❌ Reddedildi: ")+teamLabel(getTeam(r.teamId))+" → "+(jokerById(r.cardId)||{name:"?"}).name);
     const t = getTeam(r.teamId), j = jokerById(r.cardId), tg = getTeam(r.target);
     const h = t && t.jokers.find(x=>x.uid===r.uid);
     if(!t || !h){ jokerRequests.splice(i,1); syncAll(); return; }
@@ -5285,6 +5354,40 @@ function resolveJoker(rid, ok){
         addNotice(t, "❌ "+(j?j.name:"Joker")+" kullanımı reddedildi, kart elinde.");
     }
     syncAll();
+}
+
+/* ---------- MODERATÖR BİLDİRİMLERİ (ana sayfa) ---------- */
+let modLog = [];
+
+function modNote(text){
+    const d = new Date();
+    modLog.unshift({ t:String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")+":"+String(d.getSeconds()).padStart(2,"0"), x:text });
+    if(modLog.length>60){ modLog.pop(); }
+}
+
+function renderModFeed(){
+
+    const box = $("modFeed");
+    if(!box || role!=="mod"){ return; }
+
+    const reqs = jokerRequests.map(r=>{
+        const t = getTeam(r.teamId), j = jokerById(r.cardId), tg = getTeam(r.target);
+        const sl = r.slot ? (SLOTS.find(x=>x.key===r.slot)||{}).label : "";
+        return `<div class="jOp" style="border-left:4px solid #f1c40f"><b>🃏 ${esc(teamLabel(t))}</b> joker kullanmak istiyor: <b>${esc(j?j.name:"?")}</b>
+            ${tg?"<br>Hedef: <b>"+esc(teamLabel(tg))+"</b>":""}${sl?" • Mevki: <b>"+esc(sl)+"</b>":""}
+            <div class="smallNote" style="opacity:1">${esc(j?j.desc:"")}${j&&j.fx?"":" <i>[manuel uygula]</i>"}</div>
+            <button class="greenBtn" style="width:auto;margin:0 6px 0 0" onclick="resolveJoker('${r.rid}',true)">✅ Onayla</button>
+            <button class="redBtn" style="width:auto;margin:0" onclick="resolveJoker('${r.rid}',false)">❌ Reddet</button></div>`;
+    }).join("");
+
+    const log = modLog.slice(0,25).map(l=>`<div class="smallNote" style="opacity:1;padding:2px 0"><b>${l.t}</b> ${esc(l.x)}</div>`).join("");
+
+    const sig = reqs+"|"+log;
+    if(box.dataset.sig===sig){ return; }
+    box.dataset.sig = sig;
+    box.innerHTML = (reqs ? "<h3>Onay bekleyenler ("+jokerRequests.length+")</h3>"+reqs : '<div class="smallNote" style="opacity:1">Onay bekleyen işlem yok.</div>') +
+        '<h3>Son olaylar</h3>' + (log || '<div class="smallNote" style="opacity:1">Henüz olay yok.</div>');
+
 }
 
 function renderJokerOps(){
@@ -5685,8 +5788,8 @@ function applyView(v, readOnly){
 
         $("tvAucValue").textContent = "Minimum teklif: "+fmt(a.minBid)+" M€";
 
-        $("tvAucTimer").textContent = a.active ? (a.timeLeft + (a.paused ? " ⏸" : "")) : (a.paused ? "⏸" : "");
-        $("tvAucTimer").className = "timer"+((a.active && a.timeLeft<=3)?" low":"");
+        $("tvAucTimer").textContent = (a.active && a.counting) ? (a.timeLeft + (a.paused ? " ⏸" : "")) : (a.paused ? "⏸" : "");
+        $("tvAucTimer").className = "timer"+((a.active && a.counting && a.timeLeft<=3)?" low":"");
 
         let info = "";
 
@@ -5794,6 +5897,7 @@ function syncAll(){
     renderLocks();
     renderAuctionControls();
     renderJokerOps();
+    renderModFeed();
     renderPlayersTable();
     renderEndTab();
     scheduleSave();
@@ -5929,7 +6033,7 @@ function buildSnapshot(){
             current:auction.current ? auction.current.id : null,
             bids:auction.bids, seq:auction.seq,
             eligible:[...auction.eligible], bestIds:[...auction.bestIds],
-            timeLeft:auction.timeLeft, result:auction.result,
+            timeLeft:auction.timeLeft, countRunning:auction.countRunning, autoSell:auction.autoSell, result:auction.result,
             finished:auction.finished, paused:auction.paused
         },
         saleRound:saleRound, auctionLog:auctionLog,
@@ -5970,7 +6074,7 @@ function restoreModState(d){
         current:a.current ? getPlayer(a.current) : null,
         bids:a.bids || {}, seq:a.seq || 0,
         eligible:new Set(a.eligible), bestIds:new Set(a.bestIds),
-        timeLeft:a.timeLeft, result:a.result, finished:a.finished, paused:a.paused
+        timeLeft:a.timeLeft, countRunning:!!a.countRunning, autoSell:a.autoSell!==false, result:a.result, finished:a.finished, paused:a.paused
     });
     /* Yenileme sırasında süren ihale güvenli şekilde DURDURULMUŞ geri gelir. */
     if(auction.current && !auction.finished){ auction.paused = true; }

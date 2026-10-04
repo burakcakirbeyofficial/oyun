@@ -117,6 +117,7 @@ h2,h3{margin:0 0 10px;}
 .tableWrap{overflow:auto;max-height:70vh;}
 .slidePanel{max-height:0;overflow:hidden;transition:max-height .4s ease;}
 .slidePanel.open{max-height:3000px;}
+.playerMode .slidePanel{max-height:none!important;overflow:visible!important;}
 .benchLabel{text-align:center;font-size:11px;font-weight:700;color:#aaa;padding:4px 0 2px;border-top:2px dashed rgba(255,255,255,.18);}
 .benchPitch .pc{background:rgba(28,55,38,.85)!important;border-color:rgba(100,180,130,.35)!important;}
 .benchPitch .pn{color:#a8dfb8;}.benchPitch .pv{color:#6ec895;}
@@ -190,6 +191,7 @@ table.pool input.cl{width:110px;}
         <button id="tabBtnGame" class="tabBtn active" onclick="showTab('game')">Oyun</button>
         <button id="tabBtnPool" class="tabBtn" onclick="showTab('pool')">Oyuncu Havuzu Yönetimi</button>
         <button id="tabBtnJoker" class="tabBtn" onclick="showTab('joker')">🃏 Joker Kartlar</button>
+        <button id="tabBtnEnd" class="tabBtn" onclick="showTab('end')">🏆 Oyun Sonu Puanlama</button>
     </div>
 
     <!-- OYUN SEKMESİ -->
@@ -338,6 +340,18 @@ table.pool input.cl{width:110px;}
         <div class="tableWrap"><div id="poolTable"></div></div>
     </div>
 
+
+    <!-- OYUN SONU PUANLAMA SEKMESİ -->
+    <div id="tabEnd" class="panel modOnly hidden" style="margin:15px;">
+        <h2>🏆 Oyun Sonu Puanlama</h2>
+        <div class="smallNote" style="opacity:1">Sıralama oyuncuların <b>ilk 11 (AS) kadrosuna</b> göre yapılır. Her kategoride 1. olan (oyuncu sayısı) kadar puan alır, sonraki bir eksik puan alır. Toplam = kategori puanları × ağırlıklar.</div>
+        <div class="poolTools">
+            <div class="controlGroup" style="min-width:110px"><label>AS değeri ağırlığı</label><input id="wV" type="number" min="0" step="0.5" value="1" onchange="setScoreW()"></div>
+            <div class="controlGroup" style="min-width:110px"><label>AS FC27 ort. ağırlığı</label><input id="wF" type="number" min="0" step="0.5" value="1" onchange="setScoreW()"></div>
+            <div class="controlGroup" style="min-width:110px"><label>Kalan para ağırlığı</label><input id="wB" type="number" min="0" step="0.5" value="0" onchange="setScoreW()"></div>
+        </div>
+        <div id="endBox"></div>
+    </div>
 
     <!-- JOKER KARTLAR SEKMESİ -->
     <div id="tabJoker" class="panel modOnly hidden" style="margin:15px;">
@@ -4522,6 +4536,7 @@ function enterGame(){
     $("currentPlayerText").textContent = myName;
 
     $("gameScreen").className = role==="player" ? "playerMode" : "";
+    if(role==="player"){ $("teamPanel").classList.add("open"); }
 
     $("teamView").dataset.built = "0";
 
@@ -4601,6 +4616,9 @@ function showTab(tab){
     $("tabGame").classList.toggle("hidden", tab!=="game");
     $("tabPool").classList.toggle("hidden", tab!=="pool");
     $("tabJoker").classList.toggle("hidden", tab!=="joker");
+    $("tabEnd").classList.toggle("hidden", tab!=="end");
+    $("tabBtnEnd").classList.toggle("active", tab==="end");
+    if(tab==="end"){ renderEndTab(); }
 
     $("tabBtnGame").classList.toggle("active", tab==="game");
     $("tabBtnPool").classList.toggle("active", tab==="pool");
@@ -4951,6 +4969,73 @@ function addPlayerToPool(){
 /* ============================================================
    JOKER KARTLAR (ekle / düzenle / sil)
 ============================================================ */
+
+/* ============================================================
+   OYUN SONU PUANLAMA (moderatör)
+============================================================ */
+
+let scoreW = { v:1, f:1, b:0 };
+
+function setScoreW(){
+    scoreW = { v:Number($("wV").value)||0, f:Number($("wF").value)||0, b:Number($("wB").value)||0 };
+    renderEndTab();
+}
+
+function endStats(t){
+    const st = Object.values(t.starters).filter(Boolean);
+    const fcs = st.map(p=>p.fc27).filter(x=>x!=="" && x!==undefined);
+    return { t:t, v:sumSlots(t.starters), fc:fcs.length ? fcs.reduce((a,b)=>a+b,0)/fcs.length : 0,
+        fcN:fcs.length, n:st.length, budget:t.budget, bench:sumSlots(t.bench), jk:(t.jokers||[]).length };
+}
+
+function rankBy(rows, key){
+    const sorted = [...rows].sort((a,b)=>b[key]-a[key]);
+    sorted.forEach((r,i)=>{ r["r_"+key] = (i>0 && sorted[i-1][key]===r[key]) ? sorted[i-1]["r_"+key] : i+1; });
+}
+
+function renderEndTab(){
+
+    const box = $("endBox");
+    if(!box || role!=="mod" || $("tabEnd").classList.contains("hidden")){ return; }
+
+    const n = teams.length;
+    if(!n){ box.innerHTML = '<div class="smallNote" style="opacity:1">Henüz oyuncu yok.</div>'; return; }
+
+    const rows = teams.map(endStats);
+    ["v","fc","budget"].forEach(k=>rankBy(rows,k));
+    rows.forEach(r=>{
+        r.pv = (n-r.r_v+1)*scoreW.v; r.pf = (n-r.r_fc+1)*scoreW.f; r.pb = (n-r.r_budget+1)*scoreW.b;
+        r.total = r.pv + r.pf + r.pb;
+    });
+    rankBy(rows,"total");
+    rows.sort((a,b)=>a.r_total-b.r_total || b.v-a.v);
+
+    const jokersLeft = rows.reduce((a,r)=>a+r.jk,0);
+    const emptyAs = rows.reduce((a,r)=>a+(11-r.n),0);
+    const openPos = positions.filter(p=>!positionLocked(p)).length;
+    const checks = [
+        [!auctionRunning(), "İhale devam etmiyor"],
+        [openPos===0, openPos ? openPos+" mevki henüz ihale edilmedi" : "Tüm mevkiler tamamlandı"],
+        [jokersLeft===0, jokersLeft ? jokersLeft+" kullanılmamış joker var" : "Tüm jokerler kullanıldı"],
+        [jokerRequests.length===0 && !teams.some(t=>t.draw), jokerRequests.length ? jokerRequests.length+" joker onay bekliyor" : "Bekleyen joker isteği/seçim yok"],
+        [emptyAs===0, emptyAs ? "AS kadrolarda "+emptyAs+" boş mevki var" : "AS kadrolar dolu"]
+    ];
+    const done = checks.every(c=>c[0]);
+    const medal = r => r===1?"🥇":r===2?"🥈":r===3?"🥉":r+".";
+
+    box.innerHTML = `
+        <div class="jOp"><b>${done ? "✅ Oyun bitti, puanlama kesinleşebilir." : "⚠️ Oyun henüz tamamlanmamış görünüyor (puanlar anlık hesaplanıyor)."}</b>
+        <div class="smallNote" style="opacity:1">${checks.map(c=>(c[0]?"✅ ":"⏳ ")+c[1]).join("<br>")}</div></div>
+        <table class="ptable"><thead><tr><th>Sıra</th><th>Oyuncu</th><th>AS değeri</th><th>Puan</th><th>AS FC27 ort.</th><th>Puan</th><th>Kalan para</th><th>Puan</th><th>TOPLAM</th></tr></thead><tbody>` +
+        rows.map(r=>`<tr class="prw" onclick="openTeam(${r.t.id});showTab('game')">
+            <td style="font-size:18px">${medal(r.r_total)}</td><td><b>${esc(teamLabel(r.t))}</b></td>
+            <td>${fmt(r.v)} M€ <small>(${r.r_v}.)</small></td><td>${fmt(r.pv)}</td>
+            <td>${r.fcN ? r.fc.toFixed(1) : "—"} <small>(${r.fcN}/11 · ${r.r_fc}.)</small></td><td>${fmt(r.pf)}</td>
+            <td>${fmt(r.budget)} M€ <small>(${r.r_budget}.)</small></td><td>${fmt(r.pb)}</td>
+            <td><b style="font-size:16px">${fmt(r.total)}</b></td></tr>`).join("") +
+        `</tbody></table><div class="smallNote" style="opacity:1">FC27 ortalaması yalnızca reytingi girilmiş AS oyuncular üzerinden hesaplanır. Eşitlikte aynı sıra verilir. Satıra basınca o oyuncunun sahası açılır.</div>`;
+
+}
 
 function jokerById(id){ return jokerDB.find(j=>j.id===id); }
 
@@ -5710,6 +5795,7 @@ function syncAll(){
     renderAuctionControls();
     renderJokerOps();
     renderPlayersTable();
+    renderEndTab();
     scheduleSave();
 
 }

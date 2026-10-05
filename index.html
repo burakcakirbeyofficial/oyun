@@ -78,6 +78,12 @@ h2,h3{margin:0 0 10px;}
 .pitch::before{content:"";position:absolute;left:0;right:0;top:50%;height:2px;background:rgba(255,255,255,.35);}
 .pitch::after{content:"";position:absolute;left:50%;top:50%;width:90px;height:90px;border:2px solid rgba(255,255,255,.35);border-radius:50%;transform:translate(-50%,-50%);}
 .prow{position:relative;z-index:2;display:flex;justify-content:space-evenly;align-items:center;}
+.pitch{height:680px;}
+.pc{height:112px;min-width:0;}
+.pc .by{margin-top:auto;border-top:1px solid rgba(255,255,255,.25);padding-top:2px;font-size:9px;line-height:1.2;color:#cfe3ff;min-width:0;}
+.pc .by span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pc .by.dim{opacity:.5;}
+.onePitch .pitch{border-radius:16px!important;border-bottom:3px solid rgba(255,255,255,.35)!important;}
 .pc{flex:0 0 23%;width:23%;height:86px;background:rgba(8,17,31,.94);border:1px solid rgba(255,255,255,.3);border-radius:10px;padding:4px 3px;text-align:center;font-size:11px;line-height:1.25;overflow:hidden;display:flex;flex-direction:column;justify-content:center;}
 .pc .pn{font-weight:bold;height:2.5em;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word;}
 .pc .pv{color:#f1c40f;font-weight:bold;white-space:nowrap;}
@@ -5585,11 +5591,9 @@ function buildTeamViewLayout(){
 
         <div id="tvJoker"></div>
 
-        <h3>Saha: İlk 11 (1-4-2-3-1) + Yedekler</h3>
+        <h3>Saha: İlk 11 (1-4-2-3-1) — her oyuncunun altında yedeği</h3>
         <div class="onePitch">
             <div class="pitch" id="tvPitch"></div>
-            <div class="benchLabel">⬇ YEDEKLER</div>
-            <div class="pitch benchPitch" id="tvBench"></div>
         </div>
 
 
@@ -5623,28 +5627,24 @@ function shortName(n){
 
 }
 
-function cardHtml(slot, p, bench){
+function cardHtml(slot, p, b){
+
+    const bl = b
+        ? `<div class="by" title="${esc(b.name)}"><span>Y: ${esc(shortName(b.name))}</span><span>${fmt(b.value)} M€</span></div>`
+        : `<div class="by dim">Y: Boş</div>`;
 
     if(!p){
-        return `<div class="pc empty"><div class="pl">${esc(slot.label)}</div><div>Boş</div></div>`;
+        return `<div class="pc empty"><div class="pl">${esc(slot.label)}</div><div>Boş</div>${bl}</div>`;
     }
 
     const fc = (p.fc27!=="" && p.fc27!==undefined) ? esc(p.fc27) : "—";
     const club = esc(clubAbbr(p.club));
 
-    if(bench){
-        return `<div class="pc" title="${esc(p.name)}">
-            <div class="pn">${esc(shortName(p.name))}</div>
-            <div class="pv">${fmt(p.value)} M€</div>
-            <div class="pcl">${club} · ${fc}</div>
-        </div>`;
-    }
-
     return `<div class="pc" title="${esc(p.name)}">
         <div class="pn">${esc(shortName(p.name))}</div>
         <div class="pv">${fmt(p.value)} M€</div>
-        <div class="pcl">${club}</div>
-        <div class="pf">FC27: ${fc}</div>
+        <div class="pcl">${club} · FC27: ${fc}</div>
+        ${bl}
     </div>`;
 
 }
@@ -5658,13 +5658,13 @@ function benchStripHtml(map){
     }).join("");
 }
 
-function pitchHtml(map, bench){
+function pitchHtml(map, benchMap){
 
     return PITCH_ROWS.map(row=>
         `<div class="prow ${row.length===2?"two":""}">` +
         row.map(key=>{
             const slot = SLOTS.find(s=>s.key===key);
-            return cardHtml(slot, map[key], bench);
+            return cardHtml(slot, map[key], benchMap ? benchMap[key] : null);
         }).join("") +
         `</div>`
     ).join("");
@@ -5843,9 +5843,8 @@ function applyView(v, readOnly){
 
         lastSig = sig;
 
-        $("tvPitch").innerHTML = pitchHtml(v.starters, false);
+        $("tvPitch").innerHTML = pitchHtml(v.starters, v.bench);
 
-        $("tvBench").innerHTML = benchStripHtml(v.bench);
 
     }
 

@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#08111f">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>Mercato - Futbol Transfer İhalesi</title>
 
 <style>
@@ -31,7 +33,7 @@ h2,h3{margin:0 0 10px;}
 .tabs{display:flex;gap:8px;padding:12px 15px 0;}
 .tabBtn{border:0;border-radius:10px 10px 0 0;padding:10px 18px;background:rgba(255,255,255,.08);color:#fff;font-weight:bold;}
 .tabBtn.active{background:#2e7cf6;}
-.gameLayout{display:grid;grid-template-columns:1fr;gap:15px;padding:15px;align-items:start;max-width:1100px;margin:0 auto;}
+.gameLayout{display:grid;grid-template-columns:300px 1fr 300px;gap:15px;padding:15px;align-items:start;}
 .playerMode .gameLayout{grid-template-columns:1fr;max-width:720px;margin:0 auto;}
 .playerMode .modOnly{display:none!important;}
 .panel{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:15px;margin-bottom:15px;}
@@ -163,8 +165,7 @@ table.pool input.nm{min-width:150px;}
 table.pool input.num{width:72px;}
 table.pool input.cl{width:110px;}
 
-@media(max-width:1100px){.gameLayout{grid-template-columns:1fr;padding:8px;}}
-#auctionQueuePanel{order:-2;} #modFeedPanel{order:10;} .gameLayout>.modOnly{min-width:0;}
+@media(max-width:1100px){.gameLayout{grid-template-columns:1fr;}}
 
 #jmOverlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:9999;overflow:auto;padding:10px;}
 .jmPanel{max-width:620px;margin:0 auto;background:#10192b;border:1px solid rgba(255,255,255,.25);border-radius:14px;padding:14px;}
@@ -175,6 +176,166 @@ table.pool input.cl{width:110px;}
 .jmRow .jmSel{width:auto;flex:1 1 140px;}
 .jsel{outline:3px solid #f1c40f!important;box-shadow:0 0 12px #f1c40f;}
 .jmPitch .pc{cursor:pointer;}
+
+/* MOBİL UYGULAMA GÖRÜNÜMÜ */
+html{-webkit-tap-highlight-color:transparent;}
+body{overscroll-behavior-y:contain;padding-bottom:env(safe-area-inset-bottom);-webkit-user-select:none;user-select:none;}
+input{-webkit-user-select:text;user-select:text;}
+.topbar{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);padding-top:calc(12px + env(safe-area-inset-top));}
+.panel{border-radius:22px;box-shadow:0 8px 24px rgba(0,0,0,.25);}
+button:active{transform:scale(.97);}
+@media(max-width:760px){
+  .homeBox{padding:24px;border-radius:28px;}
+  .logo{font-size:38px;}
+  .gameLayout{grid-template-columns:1fr!important;padding:10px;gap:10px;}
+  .tabs{overflow-x:auto;padding:10px 10px 0;}
+  .tabBtn{white-space:nowrap;}
+  .greenBtn,.blueBtn,.redBtn,.grayBtn,.mainBtn{min-height:48px;border-radius:14px;font-size:15px;}
+  input,select{font-size:16px!important;min-height:44px;}
+  .quick{min-height:42px;border-radius:12px;}
+  .panel{padding:14px;border-radius:24px;}
+}
+
+/* ===== YENİ TEMA: uygulama / cam görünüm ===== */
+body{background:radial-gradient(900px 520px at 88% -8%,rgba(98,152,52,.42),transparent 62%),radial-gradient(760px 520px at -12% 105%,rgba(18,72,84,.55),transparent 60%),#0a0f0f!important;background-attachment:fixed!important;font-family:-apple-system,"SF Pro Display",Inter,"Segoe UI",Roboto,Arial,sans-serif;padding-bottom:calc(104px + env(safe-area-inset-bottom));}
+.panel,.homeBox,.statBox{background:linear-gradient(160deg,rgba(255,255,255,.075),rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.085);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);}
+.homeBox{border-radius:34px;box-shadow:0 30px 80px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.12);}
+.logoMark{width:64px;height:64px;margin:0 auto 10px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:34px;color:#ff4b4b;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);box-shadow:0 0 30px rgba(255,59,59,.35);}
+.logo{background:linear-gradient(180deg,#fff,#b9c2c2);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.homeInput{border-radius:16px;background:rgba(255,255,255,.95);}
+.mainBtn{background:linear-gradient(135deg,#ff4b4b,#c4231f);border-radius:16px;box-shadow:0 8px 22px rgba(220,40,40,.35);}
+.topbar{background:rgba(14,14,16,.7);border-bottom:1px solid rgba(255,255,255,.07);}
+.topLogo{letter-spacing:.14em;font-size:20px;}
+.redMark{color:#ff3b3b;text-shadow:0 0 12px #ff3b3b;}
+.roomNumber{background:rgba(255,255,255,.07);border-radius:999px;font-size:13px;}
+
+.bottomNav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom));width:calc(100% - 24px);max-width:520px;z-index:80;display:flex;justify-content:space-around;gap:4px;padding:8px 10px;margin:0;background:rgba(24,20,22,.84);border:1px solid rgba(255,255,255,.1);border-radius:30px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 12px 32px rgba(0,0,0,.55);}
+.bottomNav button,.bottomNav .tabBtn{flex:1;background:transparent;border:0;border-radius:18px;padding:6px 4px 9px;color:rgba(255,255,255,.58);display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:600;position:relative;}
+.bottomNav .ni{font-size:22px;line-height:1.1;}
+.bottomNav button.active,.bottomNav .tabBtn.active{color:#fff;background:rgba(255,255,255,.07);}
+.bottomNav button.active::after,.bottomNav .tabBtn.active::after{content:"";position:absolute;bottom:-3px;left:28%;right:28%;height:3px;border-radius:3px;background:#ff3b3b;box-shadow:0 0 12px #ff3b3b;}
+#playerNav{display:none;}
+.playerMode #playerNav{display:flex;}
+.tabs.bottomNav{padding:8px 10px;}
+
+#gameScreen:not(.playerMode) #teamView [data-sec]{display:block;}
+.playerMode #teamView [data-sec]{display:none;}
+.playerMode #teamView [data-sec].on{display:block;}
+.tvHead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;}
+.tvHead h2{margin:0;font-size:22px;}
+.budgetPill{padding:8px 14px;border-radius:999px;background:rgba(40,200,90,.14);border:1px solid rgba(60,220,110,.4);color:#7dffa8;font-weight:800;white-space:nowrap;}
+
+.auctionBox{position:relative;text-align:center;background:radial-gradient(420px 160px at 50% 0%,rgba(255,60,60,.14),transparent 70%),linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.1);border-radius:30px;padding:20px 16px 16px;box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 16px 38px rgba(0,0,0,.45);}
+.auctionBox::before{content:"";position:absolute;left:32%;right:32%;top:-1px;height:3px;border-radius:3px;background:#ff3b3b;box-shadow:0 0 14px #ff3b3b;}
+.auctionPosition{font-size:12px;letter-spacing:.16em;text-transform:uppercase;opacity:.75;}
+.auctionPlayer{font-size:30px;font-weight:900;margin:12px 0 8px;}
+.auctionClub{display:inline-block;padding:5px 14px;border-radius:999px;background:rgba(255,255,255,.08);font-size:12px;opacity:1;}
+.auctionClub:empty{display:none;}
+.auctionValue{font-size:15px;opacity:.85;margin:12px 0 6px;}
+.timer{display:inline-block;min-width:96px;padding:6px 20px;border-radius:999px;background:rgba(40,200,90,.16);border:1px solid rgba(60,220,110,.5);color:#6dff9c;font-size:30px;font-weight:900;margin:8px 0;}
+.timer:empty{display:none;}
+.timer.low{background:rgba(255,60,60,.18);border-color:rgba(255,80,80,.6);color:#ff7b7b;}
+.bidRow{margin-top:12px;justify-content:center;}
+.bidRow input{flex:1 1 100%;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.35);color:#fff;padding:14px;text-align:center;font-size:18px;}
+.bidRow .quick{flex:1 1 20%;border-radius:14px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.08);color:#fff;padding:11px 6px;}
+.bidRow>button:last-child{flex:1 1 100%;min-height:52px;border-radius:18px;border:0;background:linear-gradient(135deg,#ff4b4b,#c4231f);color:#fff;font-weight:900;letter-spacing:.06em;box-shadow:0 10px 24px rgba(220,40,40,.4);}
+.noticeBox div{padding:11px 13px;margin:7px 0;border-radius:14px;background:rgba(255,255,255,.05);border-left:3px solid #ff3b3b;}
+.promptBox,.choiceBox{border-radius:22px;margin-bottom:12px;}
+.choiceBox{background:linear-gradient(135deg,rgba(60,40,120,.55),rgba(25,18,55,.7));border:1px solid rgba(160,130,255,.5);padding:14px;}
+.ordRow{display:flex;align-items:center;gap:8px;padding:8px 10px;margin:5px 0;border-radius:12px;background:rgba(255,255,255,.07);}
+.ordRow span{flex:1;}
+.ordRow button{width:38px;height:36px;border:0;border-radius:10px;background:rgba(255,255,255,.14);color:#fff;font-weight:800;}
+
+.segBar{display:none;grid-column:1/-1;gap:6px;padding:4px;border-radius:18px;background:rgba(255,255,255,.06);}
+.segBar button{flex:1;border:0;border-radius:14px;padding:10px 4px;background:transparent;color:rgba(255,255,255,.65);font-weight:700;}
+.segBar button.on{background:rgba(255,255,255,.12);color:#fff;box-shadow:inset 0 -3px 0 #ff3b3b;}
+@media(max-width:1000px){
+  .segBar{display:flex;}
+  #gameScreen:not(.playerMode) .gameLayout{grid-template-columns:1fr!important;}
+  #gameScreen:not(.playerMode) #tabGame[data-seg="1"]>.c2,#gameScreen:not(.playerMode) #tabGame[data-seg="1"]>.c3,
+  #gameScreen:not(.playerMode) #tabGame[data-seg="2"]>.c1,#gameScreen:not(.playerMode) #tabGame[data-seg="2"]>.c3,
+  #gameScreen:not(.playerMode) #tabGame[data-seg="3"]>.c1,#gameScreen:not(.playerMode) #tabGame[data-seg="3"]>.c2{display:none!important;}
+}
+.endOverlay{position:fixed;inset:0;z-index:120;overflow:auto;background:rgba(6,9,9,.94);backdrop-filter:blur(8px);padding-top:env(safe-area-inset-top);}
+.endSheet{max-width:920px;margin:0 auto;padding:14px 12px 120px;}
+.champCard{text-align:center;padding:18px;border-radius:26px;margin:12px 0;background:radial-gradient(300px 120px at 50% 0,rgba(255,200,60,.25),transparent 70%),rgba(255,255,255,.06);border:1px solid rgba(255,210,80,.4);font-size:15px;}
+.champCard b{display:block;font-size:28px;margin:6px 0;}
+.endSheet .ptable{width:100%;display:block;overflow-x:auto;}
+.wheelOv{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:16px;}
+.wheelBox{width:100%;max-width:360px;text-align:center;padding:20px;border-radius:30px;background:linear-gradient(160deg,#1b2430,#0e131a);border:1px solid rgba(255,255,255,.15);}
+.wheelWrap{position:relative;width:220px;margin:18px auto;}
+.wheelPtr{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:26px;color:#fff;z-index:2;text-shadow:0 0 8px #000;}
+.wheelDisc{position:relative;width:220px;height:220px;border-radius:50%;background:conic-gradient(#1fc77a 0 180deg,#e74c3c 180deg 360deg);border:6px solid rgba(255,255,255,.25);transition:transform 4s cubic-bezier(.12,.7,.1,1);}
+.wheelDisc .wl{position:absolute;top:50%;width:84px;text-align:center;font-size:11px;font-weight:900;color:#fff;transform:translateY(-50%);}
+.wheelDisc .wl.ok{right:6px;} .wheelDisc .wl.no{left:6px;}
+.wheelRes{font-size:18px;font-weight:900;min-height:26px;margin-bottom:8px;}
+.wheelRes.okc{color:#7dffa8;} .wheelRes.noc{color:#ff8b8b;}
+@media(max-width:760px){.tabs.bottomNav{padding:8px 10px;}}
+
+
+/* MERCATO mobil uygulama yüzeyi: orijinal saha ve saha içi mevki düzeni korunur. */
+:root{color-scheme:dark;--app-bg:#07111f;--card-bg:#101d2d;--line:rgba(255,255,255,.09);--accent:#ef3340;}
+body{background:radial-gradient(900px 500px at 80% -10%,rgba(112,154,53,.18),transparent 60%),linear-gradient(160deg,#07111f,#0a1726 58%,#0b1c2c);}
+#gameScreen{max-width:1600px;margin:0 auto;padding-bottom:86px;}
+.topbar{position:sticky;top:0;z-index:30;background:rgba(5,13,24,.92);backdrop-filter:blur(18px);border-bottom:1px solid var(--line);padding:12px 18px;}
+.topLogo{letter-spacing:1.5px;font-size:22px;}
+.redMark{color:#ff3b4a;}
+.roomNumber{background:#142438;border:1px solid var(--line);border-radius:999px;font-size:12px;}
+.panel{background:linear-gradient(155deg,rgba(23,39,58,.96),rgba(12,25,40,.96));border:1px solid var(--line);border-radius:20px;box-shadow:0 12px 30px rgba(0,0,0,.16);padding:16px;}
+.auctionBox{border:1px solid rgba(255,255,255,.09);background:radial-gradient(360px 150px at 50% 0,rgba(239,51,64,.13),transparent 75%),linear-gradient(155deg,#172a40,#0b1726);border-radius:24px;padding:22px 16px;}
+.greenBtn,.blueBtn,.redBtn,.grayBtn,.bidRow button,.tabBtn{transition:transform .15s ease,filter .15s ease;border-radius:13px;}
+button:active{transform:scale(.98);}
+.bottomNav{position:fixed;z-index:50;left:50%;bottom:max(10px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(620px,calc(100% - 20px));padding:8px;display:flex;justify-content:space-around;gap:4px;background:rgba(7,16,28,.94);backdrop-filter:blur(22px);border:1px solid rgba(255,255,255,.13);border-radius:22px;box-shadow:0 14px 40px rgba(0,0,0,.5);}
+.bottomNav button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:0;border-radius:14px;background:transparent;color:#a9b7c8;padding:8px 4px;font-size:11px;font-weight:700;}
+.bottomNav button.active,.bottomNav .tabBtn.active{background:linear-gradient(135deg,#ef3340,#bd2335);color:#fff;}
+.bottomNav .ni{font-size:17px;}
+/* Sağ özet alanında liste ilk, hareketler en son görünür. */
+.c3{display:flex;flex-direction:column;}
+.c3 #playersPanel{order:0;}
+.c3 .panel:has(#auctionQueue){order:-5;}
+.c3 .panel:has(#saleRoundBox){order:-4;}
+.c3 .panel:has(#bidsBox){order:-3;}
+.c3 .panel:has(#teamsSummary){order:-2;}
+.c3 #modFeedPanel{order:10;margin-top:10px;}
+.pitchEditable{cursor:pointer!important;outline:1px solid rgba(255,255,255,.15);transition:transform .12s,border-color .12s,box-shadow .12s;}
+.pitchEditable:hover{border-color:#ffcc4d;box-shadow:0 0 0 2px rgba(255,204,77,.25);transform:translateY(-1px);}
+.pitchEditable .bt{color:#ffdb6e!important;}
+@media(max-width:1050px){.gameLayout{grid-template-columns:1fr 1fr;}.c1{grid-column:1/-1;}.c2{grid-column:1/-1;}.c3{grid-column:1/-1;}.pitch{max-width:520px;}}
+@media(max-width:700px){
+  body{font-size:14px;}
+  #gameScreen{padding-bottom:96px;}
+  .topbar{padding:10px 12px;gap:8px;}
+  .topLogo{font-size:18px;}
+  .topbar>div{font-size:12px;}
+  .roomNumber{padding:6px 9px;}
+  .gameLayout{display:flex;flex-direction:column;gap:10px;padding:10px;width:100%;}
+  .gameLayout>.col,.gameLayout>.c1,.gameLayout>.c2,.gameLayout>.c3{width:100%;min-width:0;}
+  .panel{padding:13px;border-radius:17px;margin-bottom:10px;}
+  .auctionBox{padding:18px 12px;border-radius:20px;}
+  .auctionPlayer{font-size:25px;}
+  .timer{font-size:40px;}
+  .bidRow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;}
+  .bidRow input{grid-column:1/-1;width:100%;min-width:0;}
+  .bidRow button{padding:11px 5px;font-size:12px;}
+  .statGrid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .pitch{height:670px;max-width:100%;padding:0 3px;border-radius:13px;}
+  .pc{flex-basis:24%;width:24%;height:112px;padding:3px 2px;font-size:9px;border-radius:8px;}
+  .pc .pn{font-size:9px;}
+  .pc .pv,.pc .pcl,.pc .pf{font-size:8px;}
+  .pc .by .bt{font-size:7px;}
+  .pc .by .bn2,.pc .by .bv2{font-size:8px;}
+  .prow{gap:1px;}
+  .pitch.benchPitch{height:330px;}
+  .tabs{padding:8px 10px 0;}
+  .segBar{position:sticky;top:54px;z-index:20;background:rgba(7,16,28,.9);backdrop-filter:blur(12px);}
+  .segBar button{padding:10px 8px;font-size:12px;}
+  .tableWrap{max-width:100%;overflow-x:auto;}
+  .homeBox{padding:25px 18px;border-radius:22px;}
+  .logo{font-size:38px;}
+  .c3 #modFeedPanel{margin-top:0;}
+}
+@media(min-width:1051px){.c3 .panel:has(#auctionQueue){position:relative;}}
+
 </style>
 </head>
 
@@ -183,7 +344,7 @@ table.pool input.cl{width:110px;}
 <!-- ANA EKRAN -->
 <div id="homeScreen">
     <div class="homeBox">
-        <div class="logo">MERCATO</div>
+        <div class="logoMark">✦</div><div class="logo">MERCATO</div>
         <div class="subtitle">Futbol Transfer İhale Oyunu</div>
 
         <input id="playerNameInput" class="homeInput" placeholder="Oyuncu adın">
@@ -207,23 +368,29 @@ table.pool input.cl{width:110px;}
 <div id="gameScreen">
 
     <div class="topbar">
-        <div class="topLogo">MERCATO</div>
+        <div class="topLogo"><span class="redMark">✦</span> MERCATO</div>
         <div class="roomNumber">Oda: <strong id="roomNumberText">----</strong></div>
         <div>Oyuncu: <strong id="currentPlayerText"></strong></div>
     </div>
 
-    <div class="tabs modOnly">
-        <button id="tabBtnGame" class="tabBtn active" onclick="showTab('game')">Oyun</button>
-        <button id="tabBtnPool" class="tabBtn" onclick="showTab('pool')">Oyuncu Havuzu Yönetimi</button>
-        <button id="tabBtnJoker" class="tabBtn" onclick="showTab('joker')">🃏 Joker Kartlar</button>
-        <button id="tabBtnEnd" class="tabBtn" onclick="showTab('end')">🏆 Oyun Sonu Puanlama</button>
+    <div class="tabs modOnly bottomNav">
+        <button id="tabBtnGame" class="tabBtn active" onclick="showTab('game')"><span class="ni">🎮</span><span>Oyun</span></button>
+        <button id="tabBtnPool" class="tabBtn" onclick="showTab('pool')"><span class="ni">👥</span><span>Havuz</span></button>
+        <button id="tabBtnJoker" class="tabBtn" onclick="showTab('joker')"><span class="ni">🃏</span><span>Joker</span></button>
+    </div>
+    <div id="playerNav" class="bottomNav">
+        <button data-sec="auction" class="active" onclick="pSec('auction')"><span class="ni">🔨</span><span>İhale</span></button>
+        <button data-sec="squad" onclick="pSec('squad')"><span class="ni">🏟</span><span>Kadro</span></button>
+        <button data-sec="joker" onclick="pSec('joker')"><span class="ni">🃏</span><span>Joker</span></button>
+        <button data-sec="info" onclick="pSec('info')"><span class="ni">🔔</span><span>Bilgi</span></button>
     </div>
 
     <!-- OYUN SEKMESİ -->
-    <div id="tabGame" class="gameLayout">
+    <div id="tabGame" class="gameLayout" data-seg="1">
+        <div class="segBar modOnly"><button class="on" onclick="setSeg(1)">🎛 Kontrol</button><button onclick="setSeg(2)">👥 Takımlar</button><button onclick="setSeg(3)">🔔 Bilgi</button></div>
 
         <!-- SOL: MODERATOR KONTROLLERİ -->
-        <div class="modOnly">
+        <div class="modOnly col c1">
             <div class="panel">
                 <h2>🎮 Kontrol Paneli</h2>
 
@@ -234,7 +401,7 @@ table.pool input.cl{width:110px;}
                 <button class="grayBtn" onclick="applyBudgetToAll()">Parayı tüm oyunculara uygula</button>
                 <button class="redBtn" onclick="createBalancedSquads()">Kadroları Oluştur</button>
                 <div class="smallNote">
-                    11 as + 11 yedek. As toplamı 350–400 M€, yedek toplamı 100–200 M€.
+                    11 as + 11 yedek. As toplamı 200–250 M€, yedek toplamı 100–150 M€.
                     Her mevkinin ilk 15'i kadrolara dağıtılmaz, ihale için ayrılır.
                     Parayı, satış ve alış geçmişini de sıfırlar.
                 </div>
@@ -283,14 +450,36 @@ table.pool input.cl{width:110px;}
                 </div>
                 <div class="smallNote" id="auctionCtlInfo"></div>
                 <div class="smallNote">
-                    Liste: %35 her zaman mevkinin en iyi 4 oyuncusundan, %35 bir kademe düşük orta grup, %30 düşük grup. Sıra rastgele. (10 yazarsan 11 kişilik liste = 4 + 4 + 3.)
+                    Liste oranı: %40 en iyiler, %25 orta, %35 düşük grup. Sıra rastgele.
                 </div>
+            </div>
+
+            <div class="panel">
+                <h2>🛠 Moderatör Müdahalesi</h2>
+                <div class="controlGroup"><label>Oyuncu</label><select id="mvTeam" onchange="mvRefresh()"></select></div>
+                <div class="controlGroup"><label>İşlem</label>
+                    <select id="mvAct" onchange="mvRefresh()">
+                        <option value="give">Boş mevkiye havuzdan oyuncu ver</option>
+                        <option value="sell">Oyuncusunu sat (piyasa değeriyle)</option>
+                        <option value="ban">Havuzdaki oyuncuyu yasakla / yasağı kaldır</option>
+                    </select></div>
+                <div class="controlGroup" id="mvPosBox"><label>Mevki</label><select id="mvPos" onchange="mvRefresh()"></select></div>
+                <div class="controlGroup"><label>Futbolcu</label><select id="mvPlayer"></select></div>
+                <button class="blueBtn" onclick="mvDo()">Uygula</button>
+                <div class="smallNote">Yasaklanan oyuncu ihaleye çıkmaz, kimse alamaz.</div>
+            </div>
+
+            <div class="panel">
+                <h2>🏁 Oyun Sonu</h2>
+                <button class="redBtn" onclick="finishGame()">🏁 Oyun Bitti</button>
+                <button class="grayBtn" onclick="openEnd('sim')">⚡ Hızlı Simülasyon (şu anki kadrolar)</button>
+                <div class="smallNote">Oyun Bitti'ye ilk basışta elinde kart kalanlara oyun sonu kullanma hakkı verilir; onaylar bitince tekrar basınca lig puanı, şampiyon ve genel puanlama açılır.</div>
             </div>
         </div>
 
 
         <!-- ORTA: TAKIM GÖRÜNÜMÜ -->
-        <div>
+        <div class="col c2">
             <div class="panel modOnly">
                 <div class="controlGroup" style="margin:0">
                     <label>Oyuncu ekranını görüntüle (salt okunur)</label>
@@ -316,13 +505,13 @@ table.pool input.cl{width:110px;}
 
 
         <!-- SAĞ: MODERATOR ÖZETİ -->
-        <div class="modOnly">
+        <div class="modOnly col c3">
             <div class="panel" id="modFeedPanel">
                 <h2>🔔 Bildirimler &amp; Onaylar</h2>
                 <div id="modFeed"></div>
             </div>
 
-            <div class="panel" id="auctionQueuePanel">
+            <div class="panel">
                 <h2>📋 İhale Listesi</h2>
                 <div id="auctionQueue" class="auctionQueue">Henüz liste oluşturulmadı.</div>
             </div>
@@ -382,18 +571,11 @@ table.pool input.cl{width:110px;}
     </div>
 
 
-    <!-- OYUN SONU PUANLAMA SEKMESİ -->
-    <div id="tabEnd" class="panel modOnly hidden" style="margin:15px;">
-        <h2>🏆 Oyun Sonu Puanlama</h2>
-        <div class="smallNote" style="opacity:1">Sıralama oyuncuların <b>ilk 11 (AS) kadrosuna</b> göre yapılır. <b>1) Mevki puanı:</b> 11 mevkinin her birinde oyuncular kendi içinde FC27 reytingine göre sıralanır (reyting yoksa değerden tahmin edilir); 1. olan oyuncu sayısı kadar puan alır, sonrakiler birer eksik. 11 mevkinin puan ortalaması alınır. <b>2) Genel puan:</b> AS değeri, AS FC27 ortalaması ve kalan para kategorilerinde aynı yöntemle sıralanır. Toplam = tüm puanlar × ağırlıklar.</div>
-        <div class="poolTools">
-            <div class="controlGroup" style="min-width:110px"><label>Mevki puanı ağırlığı</label><input id="wP" type="number" min="0" step="0.5" value="1" onchange="setScoreW()"></div>
-            <div class="controlGroup" style="min-width:110px"><label>AS değeri ağırlığı</label><input id="wV" type="number" min="0" step="0.5" value="1" onchange="setScoreW()"></div>
-            <div class="controlGroup" style="min-width:110px"><label>AS FC27 ort. ağırlığı</label><input id="wF" type="number" min="0" step="0.5" value="1" onchange="setScoreW()"></div>
-            <div class="controlGroup" style="min-width:110px"><label>Kalan para ağırlığı</label><input id="wB" type="number" min="0" step="0.5" value="0" onchange="setScoreW()"></div>
-        </div>
+    <!-- OYUN SONU EKRANI -->
+    <div id="endOverlay" class="endOverlay hidden"><div class="endSheet">
+        <button class="grayBtn" onclick="closeEnd()">✕ Kapat</button>
         <div id="endBox"></div>
-    </div>
+    </div></div>
 
     <!-- JOKER KARTLAR SEKMESİ -->
     <div id="tabJoker" class="panel modOnly hidden" style="margin:15px;">
@@ -416,17 +598,6 @@ table.pool input.cl{width:110px;}
 </div>
 
 
-<script>
-// Ana oyun yüzeyi: ihale listesi üstte, bildirim ve hareket akışı en altta.
-document.addEventListener("DOMContentLoaded", () => {
-  const layout = document.getElementById("tabGame");
-  const controls = layout && layout.querySelector(".modOnly .panel");
-  const queue = document.getElementById("auctionQueuePanel");
-  const feed = document.getElementById("modFeedPanel");
-  if (controls && queue) controls.insertBefore(queue, controls.firstChild);
-  if (layout && feed) layout.appendChild(feed);
-});
-</script>
 <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
 <script>
 
@@ -437,13 +608,13 @@ document.addEventListener("DOMContentLoaded", () => {
 const TEAM_COUNT = 10;
 let TOP_COUNT = 15;
 
-const AS_MIN = 350;
-const AS_MAX = 400;
+const AS_MIN = 200;
+const AS_MAX = 250;
 
 const BENCH_MIN = 100;
-const BENCH_MAX = 200;
+const BENCH_MAX = 150;
 
-const AUCTION_TIMER = 30;
+const AUCTION_TIMER = 10;
 const RESULT_PAUSE_MS = 2500;
 const DEFAULT_BUDGET = 100;
 
@@ -3598,6 +3769,12 @@ Hugo Cuypers;78`;
         const k = p.name.toLocaleLowerCase("tr").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim();
         if(m.has(k) && (p.fc27==="" || p.fc27===undefined)){ p.fc27 = m.get(k); }
     });
+    /* Eşleşmeyenlere piyasa değerine göre tahmini FC27 puanı ver (boş kalmasın) */
+    playerDB.forEach(p=>{
+        if(p.fc27==="" || p.fc27===undefined || isNaN(Number(p.fc27))){
+            p.fc27 = Math.max(55, Math.min(86, Math.round(58 + Math.sqrt(Math.max(Number(p.value)||0,0.5))*2.4)));
+        }
+    });
 })();
 
 function getPlayer(id){ return playerMap.get(id); }
@@ -3683,89 +3860,100 @@ let jokerCounter = 0;
 let jokerRequests = [];
 let jokerUidCounter = 0;
 let lastBuys = null;
+let oneJoker = null;
+let jokerStartDealt = false;
 
 /* Biçim: BAŞLIK|açıklama|etki   Etki boşsa moderatör uygular.
    Otomatik etkiler: s+50 (kasana 50M€), s+20% (başlangıç bütçesinin %20'si), o-20% (rakiplerin bütçesi %20 düşer) */
 const JOKER_SEED = `
-Kadro Değişimi|Kadronu (ilk 11 ve yedekler) seçtiğin bir rakibin kadrosuyla tamamen değiştirirsin.|swapsquad
-Transfer Takası|Seçtiğin rakibin aynı mevkideki ilk 11 oyuncusuyla kendi oyuncunu zorunlu takas edersin. İki oyuncunun değer farkı en fazla 20 M€ olabilir.|swap:20
+Kadro Değişimi|Bu kart yalnızca oyun başında aktiftir: seçtiğin bir rakibin kadrosuyla (as ve yedekler) kadronu tamamen değiştirirsin. Oyun başladıktan sonra eline geçerse moderatör onayında rastgele başka bir kartla değiştirilir.|swapsquad
+Transfer Takası|Seçtiğin rakibin aynı mevkideki oyuncusuyla kendi oyuncunu takas edersin. İki oyuncunun değer farkı en fazla 50 M€ olabilir.|swap:50
 Kara Para Aklama|Sponsorluk üzerinden kasana 50 M€ girer.|s+50
-Sakatlık Kabusu|Rakibinin 50 M€ ve altı değerindeki seçtiğin ilk 11 oyuncusu sakatlanır. Yedeği ilk 11'e geçer, sakat oyuncu yedekte kalır ve satılabilir.|injure:50
-El Mahkum|Rakibinin seçtiğin ilk 11 oyuncusunu 3 mevki turu boyunca kilitlersin; bu sürede satamaz. 20 M€ altı oyuncuya uygulanmaz.|lockp:3:20
-Zorunlu Satış|Rakibinin seçtiğin mevkideki ilk 11 oyuncusu piyasa değeriyle satılır. Yedeği varsa ilk 11'e geçer.|forcesell
-Oyuncu Hırsızı|Rakibinin aynı mevkideki oyuncusunu, kendi oyuncunla takas ederek alırsın. Kendi oyuncun en az 20 M€, aldığın oyuncu en çok 50 M€ olmalı.|swap:0:20:50
-Gasp|Az önce ihalede satın alınan 70 M€ altı oyuncuyu, ödenen paranın yarısını alıcıya verip gasp edersin. Alıcı, aynı mevkideki ilk 11 oyuncunu alır.|grab
+Sakatlık Kabusu|Rakibinin 50 M€ ve altı değerindeki seçtiğin oyuncusu sakatlanır. Yedeği sahaya geçer, sakat oyuncu yedekte kalır ve satılabilir.|injure:50
+El Mahkum|Rakibinin seçtiğin oyuncusunu 3 mevki turu boyunca kilitlersin; bu sürede satamaz. Yalnızca 20 ile 70 M€ arasındaki oyunculara uygulanır.|lockp:3:0:20:70
+Zorunlu Satış|Rakibinin seçtiğin mevkideki oyuncusu piyasa değeriyle satılır. Yedeği varsa sahaya geçer.|forcesell
+Oyuncu Hırsızı|Rakibinin aynı mevkideki oyuncusunu, kendi oyuncunla takas ederek alırsın. Kendi oyuncun en az 20 M€, aldığın oyuncu en çok 60 M€ olmalı.|swap:0:20:60
+Gasp|Az önce ihalede satın alınan 70 M€ altı oyuncuyu, ödenen paranın yarısını alıcıya verip gasp edersin. Alıcı, aynı mevkideki elindeki as oyuncunu alır.|grab
 Menajer Oyunları|İhalede olan oyuncu için seçtiğin rakibin teklif vermesini yasaklarsın. Yalnızca o oyuncu için geçerlidir.|banp
 Taktiksel Ambar|Seçtiğin rakip bir sonraki ihale turuna teklif veremez.|banNext:1
 Veto Hakkı|Rakip oyuncuyu satın aldıktan hemen sonra kullanırsın. Transfer iptal olur, alıcıya para iade edilir ve oyuncu bu tur satılmaz.|veto
-Kart Hırsızı|Seçtiğin rakibin elinden rastgele bir kart alırsın. Kart senin olur ama o rakibe karşı kullanamazsın.|stealcard
+Kart Hırsızı|Seçtiğin rakibin elinden rastgele bir kart alırsın. Kart senin olur ve kartı aldığın rakibe karşı da kullanabilirsin.|stealcard
 Bedava Transfer|Bir sonraki satın alımında ödemenin %50'sini banka karşılar (en fazla 90 M€).|disc:50:90
-Menajere El Altından Çanta|Menajere 20 M€ ek ödeyerek, değeri 75 M€ veya altındaki serbest bir oyuncuyu ihaleye çıkmadan piyasa değerine kadroya katarsın.|mkt:100:20:75
-Erken Satış Primi|Seçtiğin ilk 11 oyuncunu mevkisi gelmeden, piyasa değerinin %110'una satarsın.|sellown:110
-Geri Alım Opsiyonu|Rakiplerin sattığı bir ilk 11 oyuncusunu, değerinin yarısını bankaya ödeyerek geri alırsın.|buyback:50
+Menajere El Altından Çanta|Menajere 20 M€ ek ödeyerek, değeri 75 M€ veya altındaki serbest bir oyuncuyu ihaleye çıkmadan piyasa değerine kadroya katarsın. Mevki doluysa oyuncu kendi as oyuncunla yer değiştirir; as oyuncun yedeğe iner, yedek yerin doluysa oradaki oyuncu piyasaya bırakılır (değeri kasana girer).|mkt:100:20:75
+Erken Satış Primi|Seçtiğin oyuncunu mevkisi gelmeden, piyasa değerinin %110'una satarsın.|sellown:110
+Geri Alım Opsiyonu|Rakiplerin sattığı bir oyuncusunu, değerinin yarısını bankaya ödeyerek geri alırsın. Mevki doluysa oyuncu kendi as oyuncunla yer değiştirir; as oyuncun yedeğe iner, yedek yerin doluysa oradaki oyuncu piyasaya bırakılır.|buyback:50
 Yedek Satma Hakkı|Seçtiğin yedek oyuncunu piyasa değerinin yarısına satarsın.|sellbench:50
-X2 Çarpanı|Seçtiğin ilk 11 oyuncunu değerinin 2 katına satarsın. En fazla 50 M€ kazanırsın.|sellown:200:50
+X2 Çarpanı|Seçtiğin oyuncunu değerinin 2 katına satarsın. En fazla 50 M€ kazanırsın.|sellown:200:50
 Bütçe Karışıklığı|Senden yüksek ama sana en yakın bütçeye sahip oyuncunun bütçesi kadar paran olur. En yüksek bütçe sendeyse kasana 30 M€ eklenir.|swapb
 Sigorta Poliçesi|Kadrondaki bir oyuncu kartla çıkarılır, takasa girer veya satılmaya zorlanırsa kartı kullanan oyuncu sana oyuncunun değeri kadar tazminat öder.|insure
-Basın Sözcüsü Müdahalesi|Sana yöneltilen bir saldırı kartının hedefi rastgele başka bir rakibe çevrilir.|press
-Hasarlı Kalkan|Sana kullanılan bir saldırı kartını engelleyemezsin ama kopyasını alırsın. Kartı sana kullanan oyuncu dışında herkese kullanabilirsin.|hasarli
+Basın Sözcüsü Müdahalesi|Sana en son uygulanan kartı, seçtiğin bir rakibe karşı sen kullanırsın.|presscopy
+Hasarlı Kalkan|Sana kullanılan bir saldırı kartını engelleyemezsin ama kopyasını alırsın. Kopyayı kartı sana kullanan oyuncuya karşı da dahil herkese kullanabilirsin.|hasarli
 Yasaklı Oyuncu|Seçtiğin rakip 3 mevki turu boyunca sana karşı kart kullanamaz. Kullanırsa kartı yanar.|jban:3
 Başkanın Maç Sonu Açıklamaları|2 mevki turu boyunca dokunulmaz olursun. Sana kullanılan kartlar etki etmez.|imm:2
-Tekrar Müzayede|Son biten mevkideki tüm transferler iptal edilir ve paralar iade edilir. Mevki yeniden yapılır; aynı alıcı aynı oyuncuyu bir daha alamaz.|redo
+Tekrar Müzayede|Son biten mevkideki tüm transferler iptal edilir ve paralar iade edilir. İhale listesi aynı şekilde otomatik olarak baştan başlar; daha önce oyuncuyu alan kişi aynı oyuncuyu bir daha alamaz.|redo
 Random Kart Bloğu|Seçtiğin rakibin elinden rastgele bir kartı öğrenirsin. Rakip o kartı sana karşı kullanamaz.|blockcard
 Kaşar Futbolcu|Seçtiğin ilk 11 oyuncunu kilitlersin. Kimse ona dokunamaz ve satılamaz.|plock
-VAR İncelemesi|Sana yöneltilen bir saldırı kartı için yazı-tura atılır. %50 ihtimalle kart işlemez.|var
+VAR İncelemesi|Moderatör onayladıktan sonra sana karşı kart kullanan rakibe %50 şanslı bir çark gösterilir: ONAYLANDI çıkarsa kart işler, ONAYLANMADI çıkarsa işlemez.|var
 Rakip Bütçe Görüşü|İhale sürerken seçtiğin rakibin kalan parasını öğrenirsin.|info:budget
 İçeriden Bilgi|Tüm rakiplerinin kalan parasını sadece sen öğrenirsin.|info:budgets
 İşini Şansa Bırakma|Seçtiğin rakibin elindeki kartların isimlerini öğrenirsin.|info:handof
-Kart Dedektörü|Tüm oyuncuların elindeki kart sayısını öğrenirsin (isimlerini değil).|info:cards
-Açık Liste|Seçtiğin 3 mevkideki serbest oyuncuların listesini görürsün.|alist
-Mevki Takibi|Seçtiğin 3 mevkinin hangi sırada ihaleye çıkacağını öğrenirsin. Moderatör sana söyler.|track
+Kart Dedektörü|Tüm oyuncuların elindeki kartların sayısını ve isimlerini öğrenirsin.|info:cards
+Açık Liste|Seçtiğin 3 mevkideki serbest oyuncuların listesini görürsün. Moderatör listeyi değiştirse bile bu mevkilerdeki güncel liste sende sürekli görünür.|alist
+Mevki Takibi|Moderatör onayladıktan sonra seçtiğin mevkilerden hangilerinin ihaleye çıkacağını moderatör işaretler ve bilgi sana iletilir.|track
 Sıradaki Kim|İhale sırasında 3 kez bir sonraki oyuncunun kim olduğunu öğrenirsin.|next3 uses:3
 Tuzak Teklif|İhalede sahte bir teklif verirsin. Satışta bu teklif geçersiz sayılır ve bir sonraki en yüksek teklif oyuncuyu alır.|trap
-Kör Teklif|Bir mevkinin ihalesinde sırayı sen belirlersin; oyuncular rastgele dizilir, isim ve değerler yalnızca sana görünür, taban fiyat 35 M€'dur. Moderatör elle uygular.|manual
-Menajer Komisyonu Krizi|Rakip ihaleyi kazandıktan hemen sonra kullanırsın. Alıcı bankaya fazladan 20 M€ öder. Ödeyemezse transfer iptal olur ve oyuncu yeniden ihaleye çıkar.|commission:20
-Açık Artırma Blöfü (Rest Çekme)|Teklif verdikten sonra kullanırsın. Bu oyuncu için teklifini geçmek isteyenler mevcut tekliften en az 20 M€ fazlasını vermek zorundadır.|lockbid:20
-Zorla Transfer|Seçtiğin rakip, ihalede oyuncu almak istemese bile bir sonraki ihalede oyuncu almak zorunda kalır. Moderatör takip eder.|forcebuy
+Kör Teklif|Moderatör onayladıktan sonra sana seçme bildirimi gelir ve ihale listesinin sırasını sen düzenlersin (bir, iki, üç…). İhalede tüm oyuncular adı yerine 'birinci sıradaki ihale, ikinci sıradaki ihale…' şeklinde görünür ve hepsi 35 M€'dan başlar; herkes körlemesine teklif verir. İhale listesindeki oyuncuları yalnızca bu kartı kullanan görebilir.|blindlist
+Menajer Komisyonu Krizi|Rakip ihaleyi kazandıktan hemen sonra kullanırsın. Alıcı bankaya fazladan 50 M€ öder. Ödeyemezse transfer iptal olur ve oyuncu yeniden ihaleye çıkar.|commission:50
+Açık Artırma Blöfü (Rest Çekme)|Teklif verdikten sonra kullanırsın. Bu oyuncu için teklifini geçmek isteyenler mevcut tekliften en az 30 M€ fazlasını vermek zorundadır.|lockbid:30
+Zorla Transfer|Seçtiğin rakip, ihalede oyuncuya kimse teklif vermezse o oyuncuyu ihaledeki değeriyle zorla almış olur.|forcebuy
 Yiyin Birbirinizi|İhale sürerken kullanırsan kalan oyuncuların taban fiyatı %50 artar.|basepct:50
 Piyasa Düşüşü|Seçtiğin rakip bir sonraki satışını %50 zararla yapar.|ptax
 Komisyoncu|Seçtiğin rakibin bir sonraki satışından %50 komisyon kesersin; para sana geçer.|comm
-Kalkan|Sana yöneltilen bir kartı engellersin. Bir kez kullanılır.|shield:1
+Kalkan|Moderatör onayladıktan sonra sana kullanılan son üç karttan birini seçersin; o kart bundan sonra sana karşı kullanılamaz.|blockpick:3
 Transfer Yasağı|Seçtiğin rakip 1 mevki turu boyunca teklif veremez.|ban:1
-El Koyma|Rakibinin seçtiğin ilk 11 oyuncusunu piyasa değeriyle alırsın. Aldığın oyuncu dokunulmaz olur.|takeover:prot
+El Koyma|Rakibinin seçtiğin oyuncusunu piyasa değeriyle alırsın. Aldığın oyuncu dokunulmaz olur.|takeover:prot
 Çifte Değer|Bir sonraki satın alımında ödemenin yarısını sponsor karşılar.|disc:50:999
-Sigorta|Seçtiğin ilk 11 oyuncun oyun boyunca saldırı kartlarına karşı korunur.|insp
+Sigorta|Seçtiğin oyuncun oyun boyunca saldırı kartlarına karşı korunur.|insp
 Kara Liste|İhalede olan (yoksa sıradaki) oyuncu bu tur kimse tarafından satın alınamaz.|blacklist
 Bütçe Enjeksiyonu|Başlangıç bütçenin %20'si kadar para kasana eklenir.|s+20%
-Takas Zorlaması|Seçtiğin rakibin aynı mevkideki oyuncusuyla kendi oyuncunu zorla takas edersin. Değer farkı en fazla 10 M€ olabilir.|swap:10
+Takas Zorlaması|Seçtiğin rakibin aynı mevkideki oyuncusuyla kendi oyuncunu zorla takas edersin. Değer farkı en fazla 40 M€ olabilir.|swap:40
 Şok Teklif|İhale sürerken, teklif vermiş bir rakibin teklifi %30 artırılır ve oyuncu hemen ona satılır.|shock
 Kadro Dondurma|Seçtiğin rakip 1 mevki turu boyunca oyuncu satamaz, teklif veremez ve joker kullanamaz.|freeze
 Yıldız Garantisi|İhalede olan oyuncuyu en yüksek teklif bedeliyle otomatik olarak sen kazanırsın.|guarantee
 Prim Avantajı|Bir sonraki satışından elde ettiğin geliri %20 artırırsın.|sellinc:120
-Karşı Hamle|Sana yöneltilen bir kartı iptal edersin. Bir kez kullanılır.|shield:1
-Sadakat Bonusu|Seçtiğin ilk 11 oyuncun 3 mevki turu boyunca satılamaz ve kartlardan etkilenmez.|loyal:3
+Karşı Hamle|Moderatör onayladıktan sonra sana karşı kullanılan kartlardan birini seçersin; o kart bundan sonra sana karşı kullanılamaz.|blockpick:99
+Sadakat Bonusu|Seçtiğin oyuncun 3 mevki turu boyunca satılamaz ve kartlardan etkilenmez.|loyal:3
 Sakatlık Şansı|Rakibinin seçtiğin ilk 11 oyuncusu oyun boyunca sakat sayılır; yedeği oynar.|injure
 Rastgele Kutu|Değeri 50-100 M€ arasındaki serbest bir oyuncuyu seçip yarı fiyatına alırsın.|mkt:50:0:100:50
-Panik Butonu|Seçtiğin rakibin en değerli ilk 11 oyuncusu mevki turu bitince satılır.|panic
+Panik Butonu|Seçtiğin rakibin en değerli oyuncusu mevki turu bitince satılır.|panic
 Anlaşma Bozma|Rakibin az önce tamamladığı transferi iptal edersin. Oyuncu serbest kalır, ödenen para iade edilmez.|undo
-Paket Transfer|İki serbest oyuncuyu tek seferde, toplam değerlerinin %80'ine kadroya katarsın.|pack:80
-Ekspres Satış|Seçtiğin ilk 11 oyuncunu ihaleye gerek kalmadan piyasa değeriyle anında satarsın.|sellown:100
+Paket Transfer|İki serbest oyuncuyu tek seferde, toplam değerlerinin %80'ine kadroya katarsın. Kartı kullanan oyuncunun parası yetmezse kart iptal olur.|pack:80
+Ekspres Satış|Seçtiğin oyuncunu ihaleye gerek kalmadan piyasa değeriyle anında satarsın.|sellown:100
 Sponsorluk Anlaşması|3 mevki turu boyunca her tur sonunda 20 M€ ekstra gelir kazanırsın.|inc:20:3
 Ekonomik Kriz|Tüm rakiplerin bütçesi %20 azalır, sen etkilenmezsin.|o-20%
-Değer Şişirme|Seçtiğin ilk 11 oyuncunun değerini geçici olarak 2 katına çıkarıp satarsın.|sellown:200
-Dokunulmazlık|Oyun boyunca sana yöneltilen hiçbir kart etki etmez.|imm:99
+Değer Şişirme|Seçtiğin oyuncunun değerini geçici olarak 2 katına çıkarıp satarsın.|sellown:200
+Dokunulmazlık|Moderatör onayladıktan sonra bir rakip ve bir kart seçersin; o rakip o kartı oyun boyunca sana karşı kullanamaz.|immpick
 Yansıtma Kalkanı|Sana yöneltilen bir kartın etkisini kullanan rakibe geri çevirirsin.|reflect
 Piyasa Analizi|Bir sonraki turda piyasaya çıkacak oyuncuları ve değerlerini önceden görürsün.|analysis
-Kadro Kilidi|Seçtiğin ilk 11 oyuncunu oyun boyunca kilitlersin. Satılamaz, kartlar etkilemez.|plock
-Pozisyon Değişimi|Seçtiğin bir ilk 11 oyuncunun mevkisini değiştirirsin (kendi veya rakip kadrosunda). Orada oynayan oyuncu karşı mevkiye geçer.|posswap
+Kadro Kilidi|Seçtiğin oyuncunu oyun boyunca kilitlersin. Satılamaz, kartlar etkilemez.|plock
+Pozisyon Değişimi|Seçtiğin iki oyuncunun (rakip ya da kendi kadrondan; örneğin rakibin forveti ile kaleci) mevkilerini değiştirirsin. Kendi mevkisinde oynamayan oyuncu puanlamada eksi puan alır.|pswap
 Yedek Pazarı|Seçtiğin yedek oyuncunu piyasa değerinin %120'sine satarsın.|sellbench:120
-Toplu Yedek Satışı|En değerli ilk 11'e sahip rakibin yedeklerinin toplam değeri kadar kasana para eklenir.|rbench
-Ebedi Kalkan|Seçtiğin ilk 11 oyuncun oyun sonuna kadar tüm kartlara karşı bağışıktır.|eternal
-Mutlak Tahkimat|Oyun boyunca sana kart işlemez; ancak sen de ihaleye giremezsin.|imm:99 banself:99
-Sessiz Operasyon|Seçtiğin rakibin ilk 11 oyuncusunu fark ettirmeden korumaya alırsın (hiçbir kartın hedefi olamaz). Seçimini kimse bilmez.|silent
-Gece Yarısı Baskını|Rakibinin seçtiğin ilk 11 oyuncusunu piyasa değeriyle alırsın. Rakip bunu mevki turu bitince öğrenir.|takeover:night
+Toplu Yedek Satışı|En değerli kadroya sahip rakibin yedeklerinin toplam değeri kadar kasana para eklenir.|rbench
+Ebedi Kalkan|Seçtiğin oyuncun oyun sonuna kadar tüm kartlara karşı bağışıktır.|eternal
+Mutlak Tahkimat|Bir mevki seçersin: oyun boyunca o mevkiye hiçbir kart işlemez. Ancak sen de kendinle birlikte diğer rakiplerin o mevkisine kart kullanamazsın.|fort
+Sessiz Operasyon|Seçtiğin oyuncuyu fark ettirmeden korumaya alırsın (hiçbir kartın hedefi olamaz). Kartı kendine de rakibe de kullanabilirsin. Seçimini kimse bilmez.|silent
+Gece Yarısı Baskını|Rakibinin seçtiğin oyuncusunu piyasa değeriyle alırsın. Rakip bunu mevki turu bitince öğrenir.|takeover:night
 Gizli Bağış|Bir sonraki satın alımında ödemenin %30'unu bilinmeyen bir bağışçı karşılar.|disc:30:999
 Ortak Yatırım|Bir sonraki satın alımında ödemenin yarısını bir yatırımcı karşılar.|disc:50:999
+Sakatlık İyileştirme|Sakatlanan seçtiğin oyuncunu iyileştirirsin; oyuncu sahalara geri döner.|heal
+Sakatlama Kartı|Seçtiğin rakibin seçtiğin bir oyuncusunu sakatlarsın.|injure
+YA HEP YA HİÇ|Bir sonraki oyuncu alımında teklifin kazanırsa oyuncuyu %20 indirimle alırsın. Kaybedersen teklif ettiğin tutarın %10'unu kaybedersin.|allin
+SPEKÜLATİF YATIRIM|Seçtiğin bir oyuncunun değeri bir sonraki tur sonunda %25 artar veya %25 düşer. Sonuç rastgele belirlenir.|spec
+İKİNCİ ŞANS|Son kullandığın jokeri bir kez daha kullanırsın. Bu kart kendisini tekrar oynatamaz; aynı rakibe kullanılamaz.|again
+SON SANİYE|Bir sonraki açık artırmada, süre bittiğinde son teklif verme hakkını kazanırsın; ancak mevcut teklifleri geçmek zorundasın.|lastbid
+PLANI DEĞİŞTİR|Yeni 3 kart sunulur; birini seçip elindeki jokerlere katarsın.|swapplan
+SON ANDA ÇEKİLME|Devam eden ihaledeki kendi teklifini geri çekersin. Moderatör onayladıktan sonra ihale ekranındaki Çekil düğmesiyle ne zaman çekileceğini sen seçersin.|withdraw
+YASAKLI TUR|Bir sonraki turda bütün oyuncular yalnızca bir joker kullanabilir (sen dahil). Kimse joker kullanmazsa hak yanar.|onejoker
 `;
 JOKER_SEED.trim().split("\n").forEach(l=>{
     const p = l.split("|");
@@ -4070,7 +4258,9 @@ function generateSquads(){
         t.boughtCount = 0;
         t.spent = 0;
         t.notices = [];
+        t.tradeLog = [];
     });
+    gamePhase = "play"; jokerStartDealt = false;
 
     playerDB.forEach(p=>{ p.owner = null; });
 
@@ -4110,7 +4300,7 @@ function buildAuctionList(position, enteredCount){
 
     /* Sahipsiz oyuncular, değere göre büyükten küçüğe. */
     const avail = getPlayersByPosition(position)
-        .filter(p=>!p.owner)
+        .filter(p=>!p.owner && !p.modBan)
         .sort((a,b)=>b.value-a.value);
 
     if(avail.length < listSize){ return { error:"Bu mevki için havuzda yeterli oyuncu yok." }; }
@@ -4119,8 +4309,9 @@ function buildAuctionList(position, enteredCount){
        ORTA grup: geri kalanın üst kademesi (iyi gruptan bir kademe düşük).
        DÜŞÜK grup: geri kalanın alt kademesi. */
 
-    const goodPool = avail.slice(0, BEST_COUNT);
-    const rest = avail.slice(BEST_COUNT);
+    const goodN = Math.max(BEST_COUNT, Math.round(listSize*0.40));
+    const goodPool = avail.slice(0, goodN);
+    const rest = avail.slice(goodN);
 
     const cut = Math.ceil(rest.length*0.4);
 
@@ -4129,9 +4320,9 @@ function buildAuctionList(position, enteredCount){
 
     /* %35 iyi (en fazla 4), kalanı 35:30 oranında orta / düşük. */
 
-    const goodNeed = Math.min(BEST_COUNT, Math.max(1, Math.round(listSize*0.35)));
+    const goodNeed = Math.max(1, Math.round(listSize*0.40));
     const restNeed = listSize - goodNeed;
-    const mediumNeed = Math.round(restNeed*35/65);
+    const mediumNeed = Math.round(restNeed*25/60);
     const badNeed = restNeed - mediumNeed;
 
     const takeRandom = (pool,count)=> shuffle([...pool]).slice(0, Math.min(count,pool.length));
@@ -4221,6 +4412,62 @@ function prepareAuction(){
    İHALE AKIŞI
 ============================================================ */
 
+function autoNext(){
+    if(role==="mod" && auction.current && !auction.active && !auction.finished && !auction.paused){ loadNextAuctionPlayer(); }
+}
+
+/* Her oyuncuya 1 joker (stoktaki, daha önce dağıtılmamış kartlardan) */
+function autoDealOne(){
+    teams.forEach(t=>{
+        const pool = jokerDB.filter(j=>j.count>0 && !(/swapsquad/.test(j.fx) && lockedPositions.size>0));
+        if(!pool.length){ return; }
+        const j = pool[Math.floor(Math.random()*pool.length)];
+        j.count--;
+        t.jokers.push({ uid:"u"+(++jokerUidCounter), id:j.id, pending:false });
+        addNotice(t, "🃏 Joker kazandın: "+j.name);
+    });
+    modNote("🃏 Her oyuncuya 1 joker kart dağıtıldı.");
+}
+
+function corePass(teamId){
+    const team = getTeam(teamId);
+    if(!team || !auction.active || !auction.current || auction.paused || !auction.eligible.has(team.id)){ return; }
+    auction.passes = auction.passes || {};
+    auction.passes[team.id] = true;
+    addNotice(team, "⏭ Bu oyuncuyu pas geçtin.");
+    const live = [...auction.eligible].filter(id=>!auction.passes[id]);
+    if(!Object.keys(auction.bids).length && live.length===0){
+        modNote("⏭ Herkes pas geçti: "+auction.current.name+" satılmadı, sıradakine geçiliyor.");
+        auction.countRunning = false;
+        finishCurrentAuction();
+        return;
+    }
+    syncAll();
+}
+
+function coreWithdraw(teamId){
+    const t = getTeam(teamId);
+    if(!t || !auction.active || !auction.current){ return; }
+    if(!t.canWithdraw){ addNotice(t,"↩️ Çekilme hakkın yok (Son Anda Çekilme kartı gerekir)."); syncAll(); return; }
+    if(!auction.bids[t.id]){ addNotice(t,"Geri çekilecek teklifin yok."); syncAll(); return; }
+    delete auction.bids[t.id];
+    t.canWithdraw = false;
+    addNotice(t,"↩️ Teklifini geri çektin.");
+    modNote("↩️ "+teamLabel(t)+" teklifini geri çekti.");
+    syncAll();
+}
+
+function placeSwap(team, p){
+    const r = placePurchased(team, p);
+    if(r.ok){ return; }
+    const slots = SLOTS.filter(s=>s.pos===p.position);
+    const low = slots.reduce((m,s)=> team.starters[s.key].value < team.starters[m.key].value ? s : m, slots[0]);
+    const old = team.starters[low.key], ob = team.bench[low.key];
+    team.starters[low.key] = p; team.bench[low.key] = old;
+    if(ob){ team.budget += ob.value; ob.owner = null; ob.soldFrom = team.id; addNotice(team,"ℹ️ Yedek yerin dolu: "+ob.name+" piyasaya bırakıldı (+"+fmt(ob.value)+" M€)."); }
+    addNotice(team,"🔁 "+p.name+" kadroya girdi, "+old.name+" yedeğe geçti.");
+}
+
 function clearAuctionTimers(){
     clearInterval(auction.timer);
     clearTimeout(auction.nextTimeout);
@@ -4229,6 +4476,7 @@ function clearAuctionTimers(){
 function startAuction(){
 
     if(role!=="mod"){ return; }
+    if(teams.some(x=>x.choice && x.choice.kind==="order")){ alert("Kör Teklif sıralaması bekleniyor."); return; }
 
     if(!auction.queue.length){
         alert("Önce 'İhale Listesini Oluştur' butonuna bas.");
@@ -4264,6 +4512,8 @@ function startAuction(){
 
     clearAuctionTimers();
 
+    if(!jokerStartDealt){ jokerStartDealt = true; autoDealOne(); }
+
     auction.eligible = new Set(eligibleIds);
     auction.index = 0;
     auction.finished = false;
@@ -4294,18 +4544,17 @@ function loadNextAuctionPlayer(){
     auction.lockBid = null;
     auction.guarantee = null;
     teams.forEach(t=>{ t.banPlayer = null; });
+    auction.passes = {}; auction.lastWin = null; auction.lastDone = false; auction.finalBid = false;
     auction.bids = {};
     auction.seq = 0;
     auction.result = null;
     auction.active = true;
-    auction.timeLeft = AUCTION_TIMER;
+    auction.timeLeft = 30;
     auction.countRunning = true;
     auction.autoSell = true;
-    auction.timer = null;
-
-    // Her oyuncu için 30 saniyelik ihale otomatik başlar.
     auction.timer = setInterval(auctionTick, 1000);
-    modNote("⏱ " + player.name + " ihalesi başladı: " + AUCTION_TIMER + " saniye");
+    modNote("⏱ " + player.name + " ihalesi başladı: 30 saniye.");
+
     syncAll();
 
 }
@@ -4347,6 +4596,16 @@ function auctionTick(){
     auction.timeLeft--;
 
     if(auction.timeLeft<=0){
+        if(!auction.lastDone){
+            const topAmt = Math.max(0, ...Object.values(auction.bids).map(b=>b.amount));
+            const lbT = teams.find(x=>x.lastBid && auction.eligible.has(x.id) && !(auction.bids[x.id] && auction.bids[x.id].amount>=topAmt));
+            if(lbT){
+                auction.lastDone = true; auction.lastWin = lbT.id; lbT.lastBid = false; auction.timeLeft = 5;
+                addNotice(lbT,"⏳ SON SANİYE: 5 sn içinde son teklifini ver!");
+                modNote("⏳ Son Saniye: "+teamLabel(lbT)+" son teklif hakkını kullanıyor.");
+                syncAll(); return;
+            }
+        }
         auction.timeLeft = 0;
         auction.countRunning = false;
         clearInterval(auction.timer);
@@ -4517,6 +4776,7 @@ function finishCurrentAuction(){
             team.budget -= pay;
             team.spent += pay;
             team.boughtCount++;
+            (team.tradeLog = team.tradeLog||[]).push({ k:"buy", n:player.name, v:pay, pos:player.position });
 
             addNotice(team, player.name+" oyuncusunu "+fmt(b.amount)+" M€'ya aldın, ilk 11'e girdi.");
 
@@ -4534,7 +4794,26 @@ function finishCurrentAuction(){
 
     }
 
+    if(!result.teamId){
+        const fprice = Math.round((auction.blind ? 35 : player.value)*(1+(auction.baseBonus||0)/100));
+        const ft = teams.find(x=>x.forceBuy && auction.eligible.has(x.id) && x.budget>=fprice && hasCapacity(x,player.position) && !(player.noBuy>0) && !(player.noBuyBy && player.noBuyBy.includes(x.id)));
+        if(ft){
+            const fp = placePurchased(ft, player); player.owner = ft.id;
+            const fpay = payAmount(ft, fprice); ft.budget -= fpay; ft.spent += fpay; ft.boughtCount++; ft.forceBuy = false;
+            (ft.tradeLog = ft.tradeLog||[]).push({ k:"buy", n:player.name, v:fpay, pos:player.position });
+            addNotice(ft,"⚠️ Zorla Transfer: "+player.name+" ihaledeki değeriyle ("+fmt(fprice)+" M€) sana kaldı.");
+            result = { teamId:ft.id, bid:fprice, playerId:player.id, pay:fpay, displacedId:fp.displaced?fp.displaced.id:null };
+            auction.buys.push({ teamId:ft.id, playerId:player.id, pay:fpay, displacedId:result.displacedId });
+        }
+    }
     const winner = result.teamId ? getTeam(result.teamId) : null;
+    teams.forEach(x=>{
+        if(x.allin && auction.bids[x.id] && (!winner || winner.id!==x.id)){
+            const pen = Math.round(auction.bids[x.id].amount*0.1);
+            x.budget = Math.max(0, x.budget-pen); x.allin = false;
+            addNotice(x,"🎲 Ya Hep Ya Hiç: kaybettin, teklifinin %10'u ("+fmt(pen)+" M€) gitti.");
+        }
+    });
 
     auctionLog.push({
         player:player.name,
@@ -4552,14 +4831,8 @@ function finishCurrentAuction(){
     auction.index++;
 
     syncAll();
-
-    // Satış veya pas sonucu gösterildikten sonra sıradaki oyuncuya otomatik geç.
     clearTimeout(auction.nextTimeout);
-    auction.nextTimeout = setTimeout(()=>{
-        if(role === "mod" && !auction.paused && !auction.active && !auction.finished){
-            loadNextAuctionPlayer();
-        }
-    }, RESULT_PAUSE_MS);
+    auction.nextTimeout = setTimeout(autoNext, 2500);
 
 }
 
@@ -4579,6 +4852,7 @@ function finishWholeAuction(){
     auction.current = null;
     auction.result = null;
     auction.finished = true;
+    auction.blind = null;
 
     /* Biten mevki kilitlenir. */
 
@@ -4595,6 +4869,15 @@ function finishWholeAuction(){
     }
 
     lastBuys = { position:pos, buys:(auction.buys||[]).slice() };
+    oneJoker = null;
+    teams.forEach(x=>{
+        x.forceBuy = false;
+        if(x.specs && x.specs.length){
+            x.specs.forEach(id=>{ const p = getPlayer(id); if(!p){ return; } const f = Math.random()<0.5 ? 1.25 : 0.75; p.value = Math.round(p.value*f*10)/10; addNotice(x,"📈 Spekülatif Yatırım: "+p.name+" değeri "+(f>1?"%25 arttı":"%25 düştü")+" ("+fmt(p.value)+" M€)."); });
+            x.specs = [];
+        }
+    });
+    autoDealOne();
     auction.baseBonus = 0; auction.lockBid = null; auction.guarantee = null;
 
     /* Joker süreleri: yasak, dokunulmazlık, sponsor geliri */
@@ -4633,7 +4916,7 @@ function finishWholeAuction(){
 function auctionMinBid(){
     const vals = Object.values(auction.bids).map(b=>b.amount);
     const top = vals.length ? Math.max(...vals) : 0;
-    return top ? top+1 : Math.round(auction.current.value*(1+(auction.baseBonus||0)/100));
+    return top ? top+1 : Math.round((auction.blind ? 35 : auction.current.value)*(1+(auction.baseBonus||0)/100));
 }
 
 function coreBid(teamId, amount){
@@ -4644,6 +4927,8 @@ function coreBid(teamId, amount){
     const fail = msg => { addNotice(team,msg); syncAll(); return false; };
 
     if(auction.paused){ return fail("İhale durduruldu, şu an teklif verilemez."); }
+    if(auction.finalBid){ return fail("Son teklif verildi, ihale kapanıyor."); }
+    if(auction.lastWin && auction.lastWin!==team.id){ return fail("⏳ Son saniye hakkı başka oyuncuda."); }
     if(auction.lockBid && auction.lockBid.teamId!==team.id){
         const lbv=Object.values(auction.bids); const lbmax=lbv.length?Math.max(...lbv.map(b=>b.amount)):0;
         const lbreq=lbmax+(auction.lockBid.floor||0);
@@ -4684,6 +4969,9 @@ function coreBid(teamId, amount){
     }
 
     auction.bids[team.id] = { amount:amount, seq:++auction.seq };
+    if(auction.passes){ delete auction.passes[team.id]; }
+    if(auction.lastWin===team.id){ auction.lastWin = null; auction.finalBid = true; auction.timeLeft = 1; }
+    else if(auction.countRunning && auction.timeLeft>0 && auction.timeLeft<=5){ auction.timeLeft = 5; }
 
     addNotice(team, "Teklifin alındı: "+fmt(amount)+" M€");
 
@@ -4809,6 +5097,7 @@ function coreSell(teamId, playerId){
 
     team.budget += price;
     team.soldCount++;
+    (team.tradeLog = team.tradeLog||[]).push({ k:"sell", n:player.name, v:price, pos:player.position });
     if(team.sellBonus){ const sbp=team.sellBonus.pct||100,sbc=team.sellBonus.cap||999,sbb=Math.min(Math.round(price*(sbp-100)/100),sbc); if(sbb>0){ team.budget+=sbb; addNotice(team,'📈 Satış bonusu: +'+sbb+' M€'); } team.sellBonus=null; }
     team.soldMoney += price;
     if(team.commTo){ const ct = getTeam(team.commTo); const cut = Math.round(price*0.5); team.budget -= cut; if(ct){ ct.budget += cut; addNotice(ct,"✂️ Komisyoncu: "+fmt(cut)+" M€ kazandın."); } addNotice(team,"✂️ Komisyoncu satışından "+fmt(cut)+" M€ kesti."); team.commTo = null; }
@@ -4906,6 +5195,11 @@ function buildView(team){
             a.resultBid = r.teamId===team.id ? r.bid : 0;
         }
 
+        if(auction.blind){
+            if(auction.blind.by!==team.id){ a.name = (auction.queue.indexOf(cur)+1)+". sıradaki ihale"; a.club = ""; a.fc27 = ""; a.value = 35; a.blind = true; }
+            else{ a.blindSeen = true; }
+        }
+
     }
 
     /* Satış bildirimi */
@@ -4948,7 +5242,11 @@ function buildView(team){
         rivals:team.jokers.length ? teams.filter(o=>o!==team).map(o=>{ const rs={}, rb={}; SLOTS.forEach(sl=>{ if(o.starters[sl.key]){ rs[sl.key]=pub(o.starters[sl.key]); } if(o.bench[sl.key]){ rb[sl.key]=pub(o.bench[sl.key]); } }); return { id:o.id, name:teamLabel(o), starters:rs, bench:rb }; }) : [],
         market:jokerMarketFor(team),
         buyback:team.jokers.length ? playerDB.filter(p=>!p.owner && p.soldFrom && p.soldFrom!==team.id).slice(0,200).map(pub) : [],
-        notices:team.notices.slice(-6)
+        notices:team.notices.slice(-6),
+        choice:team.choice||null,
+        wheel:team.wheel||null,
+        trackInfo:team.trackInfo||"",
+        openList:(team.openPos||[]).map(pos=>({ pos:pos, list:playerDB.filter(p=>p.position===pos && !p.owner && !p.modBan).sort((x,y)=>y.value-x.value).slice(0,25).map(pub) }))
     };
 
 }
@@ -5162,6 +5460,9 @@ function onNet(msg){
         else if(msg.t==="sellAnswer"){ coreSellAnswer(team.id, msg.playerId || null); }
         else if(msg.t==="jokerPick"){ coreJokerPick(team.id, Number(msg.idx)); }
         else if(msg.t==="jokerUse"){ coreJokerUse(team.id, String(msg.uid), msg.sel); }
+        else if(msg.t==="choose"){ coreChoose(team.id, msg.vals); }
+        else if(msg.t==="pass"){ corePass(team.id); }
+        else if(msg.t==="withdraw"){ coreWithdraw(team.id); }
         else if(msg.t==="hello"){ broadcastViews(); }
         return;
     }
@@ -5345,9 +5646,6 @@ function showTab(tab){
     $("tabGame").classList.toggle("hidden", tab!=="game");
     $("tabPool").classList.toggle("hidden", tab!=="pool");
     $("tabJoker").classList.toggle("hidden", tab!=="joker");
-    $("tabEnd").classList.toggle("hidden", tab!=="end");
-    $("tabBtnEnd").classList.toggle("active", tab==="end");
-    if(tab==="end"){ renderEndTab(); }
 
     $("tabBtnGame").classList.toggle("active", tab==="game");
     $("tabBtnPool").classList.toggle("active", tab==="pool");
@@ -5727,10 +6025,10 @@ function slotStrength(p){
 function positionScores(){
     const n = teams.length, out = {};
     SLOTS.forEach(sl=>{
-        const arr = teams.map(t=>({ id:t.id, p:t.starters[sl.key]||null, sc:slotStrength(t.starters[sl.key]) }));
+        const arr = teams.map(t=>({ id:t.id, p:t.starters[sl.key]||null, sc:slotStrength(t.starters[sl.key]) - ((t.starters[sl.key] && t.starters[sl.key].position!==sl.pos)?12:0) }));
         arr.sort((a,b)=>b.sc-a.sc);
         const m = {};
-        arr.forEach((r,i)=>{ const rank = (i>0 && arr[i-1].sc===r.sc) ? m[arr[i-1].id].rank : i+1; m[r.id] = { rank:rank, pts:r.p ? n-rank+1 : 0, p:r.p }; });
+        arr.forEach((r,i)=>{ const rank = (i>0 && arr[i-1].sc===r.sc) ? m[arr[i-1].id].rank : i+1; m[r.id] = { rank:rank, pts:r.p ? ((r.p.position!==sl.pos) ? -n : n-rank+1) : 0, p:r.p }; });
         out[sl.key] = m;
     });
     return out;
@@ -5741,57 +6039,320 @@ function rankBy(rows, key){
     sorted.forEach((r,i)=>{ r["r_"+key] = (i>0 && sorted[i-1][key]===r[key]) ? sorted[i-1]["r_"+key] : i+1; });
 }
 
-function renderEndTab(){
 
+/* ============================================================
+   YENİ: gezinme, seçimler, müdahale, oyun sonu, simülasyon
+============================================================ */
+let choiceCounter = 0, wheelCounter = 0;
+
+function pSec(n){
+    window._sec = n;
+    document.querySelectorAll('#teamView [data-sec]').forEach(e=>e.classList.toggle('on', e.dataset.sec===n));
+    document.querySelectorAll('#playerNav button').forEach(b=>b.classList.toggle('active', b.dataset.sec===n));
+}
+function setSeg(n){
+    $("tabGame").dataset.seg = String(n);
+    document.querySelectorAll('.segBar button').forEach((b,i)=>b.classList.toggle('on', i===n-1));
+}
+
+function giveChoice(t, kind, title, desc, fields, extra){
+    t.choice = Object.assign({ id:++choiceCounter, kind:kind, title:title, desc:desc, fields:fields }, extra||{});
+    addNotice(t, "🃏 "+title+": bir seçim yapman gerekiyor!");
+}
+
+function coreChoose(teamId, vals){
+    const t = getTeam(teamId);
+    if(!t || !t.choice){ return; }
+    const c = t.choice; vals = vals || {};
+    const bad = m=>{ addNotice(t,"❌ "+m); syncAll(); };
+    if(c.kind==="block"){
+        const o = c.fields[0].options.find(x=>x.v===String(vals.card));
+        if(!o){ return bad("Bir kart seç."); }
+        (t.blocked = t.blocked||[]).push(o.v);
+        addNotice(t,"🛡 "+o.l+" kartı artık sana karşı kullanılamaz.");
+        modNote("🛡 "+teamLabel(t)+" şu kartı kendine karşı engelledi: "+o.l);
+    }
+    else if(c.kind==="imm"){
+        const tid = Number(vals.team), cid = String(vals.card);
+        const other = getTeam(tid), cj = jokerById(cid);
+        if(!other || other===t || !cj){ return bad("Rakip ve kart seç."); }
+        t.immTo = t.immTo||{}; (t.immTo[tid] = t.immTo[tid]||[]).push(cid);
+        addNotice(t,"🛡 "+teamLabel(other)+" artık "+cj.name+" kartını sana karşı kullanamaz.");
+        modNote("🛡 "+teamLabel(t)+": "+teamLabel(other)+" → "+cj.name+" kartı ona etki etmeyecek.");
+    }
+    else if(c.kind==="pswap"){
+        const pa = String(vals.a).split(":"), pb = String(vals.b).split(":");
+        const A = getTeam(Number(pa[0])), B = getTeam(Number(pb[0]));
+        if(!A || !B || !A.starters[pa[1]] || !B.starters[pb[1]]){ return bad("Geçerli iki oyuncu seç."); }
+        if(A===B && pa[1]===pb[1]){ return bad("İki farklı oyuncu seç."); }
+        for(const pr of [[A,pa[1]],[B,pb[1]]]){
+            const X = pr[0], k = pr[1];
+            if(X!==t){
+                if(isProt(X.starters[k])){ return bad("Seçtiğin oyuncu korumalı."); }
+                if(X.fort && X.fort.includes(k)){ return bad("Seçtiğin mevki tahkimatlı."); }
+                if(t.fort && t.fort.includes(k)){ return bad("Tahkimat kurduğun mevkide rakibe kart kullanamazsın."); }
+            }
+        }
+        const jj = jokerById(c.jid);
+        const others = [...new Set([A,B].filter(x=>x!==t))];
+        for(const o of others){
+            const g = gateAttack({ t:t, j:jj, tg:o, sel:{}, slotOp:false });
+            if(g && g.stop){ t.choice = null; addNotice(t,"🔥 "+g.stop); syncAll(); return; }
+        }
+        const p1 = A.starters[pa[1]], p2 = B.starters[pb[1]];
+        A.starters[pa[1]] = p2; B.starters[pb[1]] = p1; p1.owner = B.id; p2.owner = A.id;
+        addNotice(A,"🔀 "+p1.name+" ↔ "+p2.name+" mevki değişimi yapıldı.");
+        if(B!==A){ addNotice(B,"🔀 "+p2.name+" ↔ "+p1.name+" mevki değişimi yapıldı."); }
+        modNote("🔀 "+teamLabel(t)+" Pozisyon Değişimi: "+p1.name+" ↔ "+p2.name);
+    }
+    else if(c.kind==="order"){
+        const ids = Array.isArray(vals.order) ? vals.order.map(String) : [];
+        const cur = auction.queue.map(p=>p.id);
+        if(ids.length!==cur.length || cur.some(id=>!ids.includes(id))){ return bad("Sıralama geçersiz."); }
+        if(auction.active || auction.current){ return bad("İhale başladığı için sıralama yapılamadı."); }
+        auction.queue = ids.map(getPlayer);
+        auction.index = 0;
+        auction.blind = { by:t.id };
+        teams.forEach(x=>addNotice(x,"🙈 Kör Teklif: bu mevkideki oyuncuların adı gizli, taban 35 M€ ile kör teklifle satılacak."));
+        modNote("🙈 Kör Teklif sıralamasını "+teamLabel(t)+" belirledi. Liste güncellendi.");
+    }
+    t.choice = null;
+    syncAll();
+}
+
+function renderChoice(c){
+    const ch = $("tvChoice");
+    window._ord = null;
+    let h = `<div class="promptTitle">🃏 ${esc(c.title)}</div><div class="smallNote" style="opacity:1">${esc(c.desc||"")}</div>`;
+    if(c.kind==="order"){
+        window._ord = c.items.map(x=>x.id); window._ordItems = c.items; window._chFields = [];
+        ch.innerHTML = h + '<div id="chOrder"></div>';
+        drawOrder();
+        return;
+    }
+    c.fields.forEach(f=>{
+        h += `<label class="smallNote" style="opacity:1;display:block;margin-top:6px">${esc(f.label)}</label><select class="jmSel" id="chf_${f.key}">${f.options.map(o=>`<option value="${esc(o.v)}">${esc(o.l)}</option>`).join("")}</select>`;
+    });
+    h += `<button class="yesBtn" onclick="submitChoice()">ONAYLA</button>`;
+    ch.innerHTML = h;
+    window._chFields = c.fields.map(f=>f.key);
+}
+function drawOrder(){
+    const box = $("chOrder"); if(!box){ return; }
+    const byId = {}; window._ordItems.forEach(x=>{ byId[x.id] = x; });
+    box.innerHTML = window._ord.map((id,i)=>{ const x = byId[id]; return `<div class="ordRow"><b>${i+1}.</b> <span>${esc(x.name)} <small>(${esc(clubAbbr(x.club))} · ${fmt(x.value)} M€)</small></span><button onclick="ordMove(${i},-1)">↑</button><button onclick="ordMove(${i},1)">↓</button></div>`; }).join("")
+        + `<button class="yesBtn" onclick="submitChoice()">SIRALAMAYI KAYDET</button>`;
+}
+function ordMove(i,d){ const a = window._ord, j = i+d; if(!a || j<0 || j>=a.length){ return; } [a[i],a[j]] = [a[j],a[i]]; drawOrder(); }
+function submitChoice(){
+    if(role!=="player"){ return; }
+    const vals = {};
+    if(window._ord){ vals.order = window._ord; }
+    (window._chFields||[]).forEach(k=>{ const el = $("chf_"+k); if(el){ vals[k] = el.value; } });
+    send({ t:"choose", cid:myCid, teamId:myTeamId, vals:vals });
+}
+
+function showWheel(w){
+    const o = document.createElement("div");
+    o.className = "wheelOv";
+    o.innerHTML = `<div class="wheelBox"><div class="promptTitle">📺 VAR İNCELEMESİ</div><div class="smallNote" style="opacity:1">${esc(w.card)} kartı inceleniyor</div>
+        <div class="wheelWrap"><div class="wheelPtr">▼</div><div class="wheelDisc" id="wheelDisc"><span class="wl ok">ONAYLANDI</span><span class="wl no">ONAYLANMADI</span></div></div>
+        <div id="wheelRes" class="wheelRes">Çark dönüyor…</div><button class="grayBtn" onclick="this.closest('.wheelOv').remove()">Kapat</button></div>`;
+    document.body.appendChild(o);
+    const d = o.querySelector("#wheelDisc");
+    const a = w.valid ? 20+Math.random()*140 : 200+Math.random()*140;
+    const R = 1800 + (360 - a);
+    setTimeout(()=>{ d.style.transform = "rotate("+R+"deg)"; }, 80);
+    setTimeout(()=>{ const r = o.querySelector("#wheelRes"); if(r){ r.textContent = w.valid ? "✅ ONAYLANDI — kart işledi" : "❌ ONAYLANMADI — kart işlemedi"; r.className = "wheelRes "+(w.valid?"okc":"noc"); } try{ navigator.vibrate && navigator.vibrate([200,100,200]); }catch(e){} }, 4300);
+}
+
+/* ---- Moderatör müdahalesi ---- */
+function mvRefresh(){
+    if(role!=="mod"){ return; }
+    const ts = $("mvTeam"); if(!ts){ return; }
+    const key = teams.map(t=>t.id).join(",");
+    if(ts.dataset.k!==key){
+        const cur = ts.value;
+        ts.innerHTML = teams.map(t=>`<option value="${t.id}">${esc(teamLabel(t))}</option>`).join("");
+        ts.value = cur || (teams[0] ? String(teams[0].id) : "");
+        ts.dataset.k = key;
+    }
+    const ps = $("mvPos");
+    if(!ps.options.length){ ps.innerHTML = positions.map(p=>`<option>${esc(p)}</option>`).join(""); }
+    const act = $("mvAct").value, team = getTeam(Number(ts.value)), sel = $("mvPlayer");
+    $("mvPosBox").style.display = act==="sell" ? "none" : "";
+    let list = [];
+    if(act==="sell"){
+        if(team){ SLOTS.forEach(s=>{
+            if(team.starters[s.key]){ list.push({ id:team.starters[s.key].id, l:"AS · "+s.label+": "+team.starters[s.key].name+" ("+fmt(team.starters[s.key].value)+" M€)" }); }
+            if(team.bench[s.key]){ list.push({ id:team.bench[s.key].id, l:"Yedek · "+s.label+": "+team.bench[s.key].name+" ("+fmt(team.bench[s.key].value)+" M€)" }); }
+        }); }
+    }
+    else{
+        list = playerDB.filter(p=>p.position===ps.value && !p.owner && (act==="ban" || !p.modBan))
+            .sort((a,b)=>b.value-a.value).slice(0,300)
+            .map(p=>({ id:p.id, l:p.name+" · "+clubAbbr(p.club)+" · "+fmt(p.value)+" M€ · FC "+p.fc27+(p.modBan?" 🚫":"") }));
+    }
+    const prev = sel.value;
+    sel.innerHTML = list.map(x=>`<option value="${esc(x.id)}">${esc(x.l)}</option>`).join("");
+    if(list.some(x=>x.id===prev)){ sel.value = prev; }
+}
+
+function mvDo(){
+    if(role!=="mod"){ return; }
+    const team = getTeam(Number($("mvTeam").value)), act = $("mvAct").value;
+    const p = getPlayer($("mvPlayer").value);
+    if(!team || !p){ alert("Oyuncu ve futbolcu seç."); return; }
+    if(act==="give"){
+        if(p.owner || p.modBan){ alert("Bu futbolcu verilemez."); return; }
+        const slots = SLOTS.filter(s=>s.pos===p.position);
+        const fs = slots.find(s=>!team.starters[s.key]), fb = slots.find(s=>!team.bench[s.key]);
+        if(fs){ team.starters[fs.key] = p; }
+        else if(fb){ team.bench[fb.key] = p; }
+        else{ alert("Bu mevkide boş yer yok."); return; }
+        p.owner = team.id;
+        addNotice(team,"🎁 Moderatör sana "+p.name+" verdi.");
+        modNote("🎁 "+teamLabel(team)+" → "+p.name+" verildi.");
+    }
+    else if(act==="sell"){
+        const f = findKey(team, p.id);
+        if(!f){ alert("Futbolcu bu oyuncuda değil."); return; }
+        const pp = bankSell(team, f.layer, f.key, p.value);
+        (team.tradeLog = team.tradeLog||[]).push({ k:"sell", n:pp.name, v:p.value, pos:pp.position });
+        addNotice(team,"💸 Moderatör "+pp.name+" oyuncusunu "+fmt(p.value)+" M€'ya sattı.");
+        modNote("💸 "+teamLabel(team)+": "+pp.name+" satıldı.");
+    }
+    else{
+        if(p.owner){ alert("Sahibi olan oyuncu yasaklanamaz."); return; }
+        if(p.modBan){ p.modBan = false; p.noBuy = 0; modNote("✅ Yasak kalktı: "+p.name); }
+        else{ p.modBan = true; p.noBuy = 99999; modNote("🚫 Yasaklandı: "+p.name); }
+    }
+    syncAll(); mvRefresh();
+}
+
+/* ---- Oyun sonu ---- */
+let gamePhase = "play";
+const END_SET = new Set(["swap","injure","heal","forcesell","takeover","posswap","pswap","sellown","sellbench","rbench","s+","o-","plock","eternal","insp","loyal","stealcard","swapb","mkt","pack","buyback","lockp","silent","spec","fort","info","alist","track","presscopy","blockcard","immpick","blockpick"]);
+
+function finishGame(){
+    if(role!=="mod"){ return; }
+    if(gamePhase==="play"){
+        if(auctionRunning()){ alert("Önce devam eden ihaleyi bitir."); return; }
+        if(!confirm("Oyun bitsin mi?\n\nElinde kart kalanlara oyun sonu kullanma hakkı verilir; oyun sonunda işe yaramayacak kartlar yanar.")){ return; }
+        gamePhase = "final";
+        let burned = 0;
+        teams.forEach(t=>{
+            const keep = [], gone = [];
+            t.jokers.forEach(h=>{ const j = jokerById(h.id); const ok = h.pending || (j && parseFx(j.fx).some(o=>END_SET.has(o.k))); (ok?keep:gone).push(h); });
+            t.jokers = keep; t.draw = null;
+            burned += gone.length;
+            if(gone.length){ addNotice(t,"⌛ Oyun sonunda kullanılamayan kartlar yandı: "+gone.map(h=>{ const j=jokerById(h.id); return j?j.name:"?"; }).join(", ")); }
+            addNotice(t, keep.length ? "🏁 Oyun sonu: kalan "+keep.length+" kartını şimdi kullanabilirsin." : "🏁 Oyun bitti.");
+        });
+        modNote("🏁 Oyun sonu joker turu başladı ("+burned+" kart yandı). Onayları bitirince tekrar 'Oyun Bitti'ye bas.");
+        syncAll();
+        alert("Oyun sonu joker turu açıldı. Bekleyen joker onaylarını bitirdikten sonra tekrar 'Oyun Bitti'ye bas.");
+        return;
+    }
+    if(gamePhase==="final"){
+        if(jokerRequests.length){ alert("Bekleyen "+jokerRequests.length+" joker onayı var."); return; }
+        gamePhase = "over";
+        teams.forEach(t=>{ t.jokers = []; t.draw = null; addNotice(t,"🏆 Oyun bitti, sonuçlar moderatörde."); });
+        syncAll();
+    }
+    openEnd("final");
+}
+
+function openEnd(mode){ $("endOverlay").classList.remove("hidden"); renderEnd(mode); }
+function closeEnd(){ $("endOverlay").classList.add("hidden"); }
+function renderEndTab(){}
+
+function teamRatings(t){
+    const map = { gk:"gk", lb:"def", lcb:"def", rcb:"def", rb:"def", dm:"mid", cm:"mid", am:"mid", lw:"att", rw:"att", st:"att" };
+    const g = { gk:[], def:[], mid:[], att:[] };
+    SLOTS.forEach(sl=>{
+        const p = t.starters[sl.key];
+        let s = p ? slotStrength(p) : 40;
+        if(p && p.position!==sl.pos){ s -= 12; }
+        g[map[sl.key]].push(s);
+    });
+    const av = a=>a.reduce((x,y)=>x+y,0)/a.length;
+    return { gk:av(g.gk), def:av(g.def), mid:av(g.mid), att:av(g.att) };
+}
+function poisson(l){ const L = Math.exp(-l); let k = 0, p = 1; do{ k++; p *= Math.random(); }while(p>L); return k-1; }
+function simMatch(a,b){
+    const la = Math.max(0.2, Math.min(4.5, 1.35*Math.exp(((a.att*0.55+a.mid*0.45)-(b.def*0.5+b.gk*0.25+b.mid*0.25))/16 + 0.06)));
+    const lb = Math.max(0.2, Math.min(4.5, 1.35*Math.exp(((b.att*0.55+b.mid*0.45)-(a.def*0.5+a.gk*0.25+a.mid*0.25))/16 - 0.06)));
+    return [poisson(la), poisson(lb)];
+}
+function simulateLeague(runs){
+    const n = teams.length, R = teams.map(teamRatings);
+    const pts = new Array(n).fill(0), gd = new Array(n).fill(0), titles = new Array(n).fill(0);
+    for(let r=0; r<runs; r++){
+        const p = new Array(n).fill(0), g = new Array(n).fill(0);
+        for(let i=0;i<n;i++){ for(let j=0;j<n;j++){ if(i===j){ continue; }
+            const s = simMatch(R[i],R[j]);
+            g[i] += s[0]-s[1]; g[j] += s[1]-s[0];
+            if(s[0]>s[1]){ p[i]+=3; } else if(s[0]<s[1]){ p[j]+=3; } else{ p[i]++; p[j]++; }
+        } }
+        let best = 0;
+        for(let i=1;i<n;i++){ if(p[i]>p[best] || (p[i]===p[best] && g[i]>g[best])){ best = i; } }
+        titles[best]++;
+        for(let i=0;i<n;i++){ pts[i]+=p[i]; gd[i]+=g[i]; }
+    }
+    const rows = teams.map((t,i)=>({ t:t, ap:pts[i]/runs, gd:gd[i]/runs, title:titles[i]/runs*100, rt:R[i] }));
+    rows.sort((a,b)=>b.title-a.title || b.ap-a.ap);
+    rows.forEach((r,i)=>{ r.rank = i+1; });
+    return rows;
+}
+
+function renderEnd(mode){
     const box = $("endBox");
-    if(!box || role!=="mod" || $("tabEnd").classList.contains("hidden")){ return; }
-
     const n = teams.length;
     if(!n){ box.innerHTML = '<div class="smallNote" style="opacity:1">Henüz oyuncu yok.</div>'; return; }
-
+    const league = simulateLeague(400);
+    const lrank = {}; league.forEach(r=>{ lrank[r.t.id] = r.rank; });
     const rows = teams.map(endStats);
     const ps = positionScores();
-    ["v","fc","budget"].forEach(k=>rankBy(rows,k));
+    ["v","fc"].forEach(k=>rankBy(rows,k));
+    const thr = 0.25*settings.startBudget;
+    rows.forEach(r=>{ r.extra = Math.max(0, r.budget-thr); });
+    const mn = Math.min(...rows.map(r=>r.extra)), mx = Math.max(...rows.map(r=>r.extra));
     rows.forEach(r=>{
         r.posSum = SLOTS.reduce((a,sl)=>a+ps[sl.key][r.t.id].pts,0);
-        r.posAvg = r.posSum/11;
-        r.pp = r.posAvg*scoreW.p;
-        r.pv = (n-r.r_v+1)*scoreW.v; r.pf = (n-r.r_fc+1)*scoreW.f; r.pb = (n-r.r_budget+1)*scoreW.b;
-        r.total = r.pp + r.pv + r.pf + r.pb;
+        r.pp = r.posSum/11;
+        r.pv = n-r.r_v+1; r.pf = n-r.r_fc+1;
+        r.pb = (mx===mn) ? 0 : (r.extra-mn)/(mx-mn)*n;
+        r.pl = n-lrank[r.t.id]+1;
+        r.total = r.pp + r.pv + r.pf + r.pb + r.pl;
     });
     rankBy(rows,"total");
     rows.sort((a,b)=>a.r_total-b.r_total || b.v-a.v);
-
-    const jokersLeft = rows.reduce((a,r)=>a+r.jk,0);
-    const emptyAs = rows.reduce((a,r)=>a+(11-r.n),0);
-    const openPos = positions.filter(p=>!positionLocked(p)).length;
-    const checks = [
-        [!auctionRunning(), "İhale devam etmiyor"],
-        [openPos===0, openPos ? openPos+" mevki henüz ihale edilmedi" : "Tüm mevkiler tamamlandı"],
-        [jokersLeft===0, jokersLeft ? jokersLeft+" kullanılmamış joker var" : "Tüm jokerler kullanıldı"],
-        [jokerRequests.length===0 && !teams.some(t=>t.draw), jokerRequests.length ? jokerRequests.length+" joker onay bekliyor" : "Bekleyen joker isteği/seçim yok"],
-        [emptyAs===0, emptyAs ? "AS kadrolarda "+emptyAs+" boş mevki var" : "AS kadrolar dolu"]
-    ];
-    const done = checks.every(c=>c[0]);
     const medal = r => r===1?"🥇":r===2?"🥈":r===3?"🥉":r+".";
-
+    const champ = league[0], genel = rows[0];
+    const title = mode==="final" ? "🏆 Oyun Sonu Sonuçları" : "⚡ Hızlı Simülasyon (anlık kadrolar)";
+    const trades = teams.map(t=>{
+        const lg = t.tradeLog||[];
+        const buys = lg.filter(x=>x.k==="buy"), sells = lg.filter(x=>x.k==="sell");
+        return `<div class="jOp"><b>${esc(teamLabel(t))}</b> — para ${fmt(t.budget)} M€<br>
+            <small>🟢 Aldıkları: ${buys.length ? buys.map(x=>esc(x.n)+" ("+fmt(x.v)+" M€)").join(", ") : "—"}</small><br>
+            <small>🔴 Sattıkları: ${sells.length ? sells.map(x=>esc(x.n)+" ("+fmt(x.v)+" M€)").join(", ") : "—"}</small></div>`;
+    }).join("");
     box.innerHTML = `
-        <div class="jOp"><b>${done ? "✅ Oyun bitti, puanlama kesinleşebilir." : "⚠️ Oyun henüz tamamlanmamış görünüyor (puanlar anlık hesaplanıyor)."}</b>
-        <div class="smallNote" style="opacity:1">${checks.map(c=>(c[0]?"✅ ":"⏳ ")+c[1]).join("<br>")}</div></div>
-        <table class="ptable"><thead><tr><th>Sıra</th><th>Oyuncu</th><th>Mevki puanı (ort.)</th><th>Puan</th><th>AS değeri</th><th>Puan</th><th>AS FC27 ort.</th><th>Puan</th><th>Kalan para</th><th>Puan</th><th>TOPLAM</th></tr></thead><tbody>` +
-        rows.map(r=>`<tr class="prw" onclick="openTeam(${r.t.id});showTab('game')">
-            <td style="font-size:18px">${medal(r.r_total)}</td><td><b>${esc(teamLabel(r.t))}</b></td>
-            <td>${r.posSum} <small>(${r.posAvg.toFixed(2)})</small></td><td>${r.pp.toFixed(1)}</td>
-            <td>${fmt(r.v)} M€ <small>(${r.r_v}.)</small></td><td>${fmt(r.pv)}</td>
-            <td>${r.fcN ? r.fc.toFixed(1) : "—"} <small>(${r.fcN}/11 · ${r.r_fc}.)</small></td><td>${fmt(r.pf)}</td>
-            <td>${fmt(r.budget)} M€ <small>(${r.r_budget}.)</small></td><td>${fmt(r.pb)}</td>
-            <td><b style="font-size:16px">${r.total.toFixed(1)}</b></td></tr>`).join("") +
-        `</tbody></table>
-        <h3>Mevki bazlı sıralama</h3>
-        <table class="ptable"><thead><tr><th>Mevki</th>${rows.map(r=>`<th>${esc(teamLabel(r.t))}</th>`).join("")}</tr></thead><tbody>` +
-        SLOTS.map(sl=>`<tr><td><b>${esc(sl.label)}</b></td>${rows.map(r=>{ const c = ps[sl.key][r.t.id]; return `<td>${c.p?esc(shortName(c.p.name))+" <small>"+(c.p.fc27!==""&&c.p.fc27!==undefined?c.p.fc27:"—")+" · "+fmt(c.p.value)+" M€</small>":"<i>boş</i>"}<br><b>${c.rank}.</b> <small>(${c.pts} puan)</small></td>`; }).join("")}</tr>`).join("") +
-        `</tbody></table><div class="smallNote" style="opacity:1">FC27 ortalaması yalnızca reytingi girilmiş AS oyuncular üzerinden hesaplanır. Eşitlikte aynı sıra verilir. Satıra basınca o oyuncunun sahası açılır.</div>`;
-
+        <h2>${title}</h2>
+        <div class="champCard">🏆 Şampiyon adayı<br><b>${esc(teamLabel(champ.t))}</b><br><small>şampiyonluk şansı %${champ.title.toFixed(1)} · ort. ${champ.ap.toFixed(1)} puan</small></div>
+        <h3>Lig puanı (400 sezon simülasyonu, çift devre)</h3>
+        <table class="ptable"><thead><tr><th>Sıra</th><th>Oyuncu</th><th>Ort. puan</th><th>Şampiyonluk</th><th>Ort. averaj</th><th>H / O / D / K</th></tr></thead><tbody>${
+            league.map(r=>`<tr><td>${medal(r.rank)}</td><td><b>${esc(teamLabel(r.t))}</b></td><td>${r.ap.toFixed(1)}</td><td>%${r.title.toFixed(1)}</td><td>${r.gd>=0?"+":""}${r.gd.toFixed(1)}</td><td><small>${r.rt.att.toFixed(0)} / ${r.rt.mid.toFixed(0)} / ${r.rt.def.toFixed(0)} / ${r.rt.gk.toFixed(0)}</small></td></tr>`).join("")
+        }</tbody></table>
+        <h3>Genel puanlama ${mode==="final" ? "— birinci: "+esc(teamLabel(genel.t)) : "(anlık)"}</h3>
+        <table class="ptable"><thead><tr><th>Sıra</th><th>Oyuncu</th><th>Mevki</th><th>AS değeri</th><th>FC27</th><th>Tasarruf</th><th>Lig</th><th>TOPLAM</th></tr></thead><tbody>${
+            rows.map(r=>`<tr class="prw"><td>${medal(r.r_total)}</td><td><b>${esc(teamLabel(r.t))}</b></td>
+                <td>${r.pp.toFixed(1)}</td><td>${r.pv}<br><small>${fmt(r.v)} M€</small></td><td>${r.pf}<br><small>${r.fcN?r.fc.toFixed(1):"—"}</small></td>
+                <td>${r.pb.toFixed(1)}<br><small>+${fmt(r.extra)} M€</small></td><td>${r.pl}</td><td><b>${r.total.toFixed(1)}</b></td></tr>`).join("")
+        }</tbody></table>
+        <div class="smallNote" style="opacity:1">Tasarruf puanı: verilen paranın %25'inin (${fmt(thr)} M€) üstünde kalan para esas alınır; en çok tasarruf edene ${n}, en çok harcayana 0 puan, arası oranlı. Kendi mevkisinde oynamayan oyuncu mevki puanında −${n} alır.</div>
+        <h3>Kim ne almış, ne satmış</h3>${trades}`;
 }
 
 function jokerById(id){ return jokerDB.find(j=>j.id===id); }
@@ -5848,9 +6409,11 @@ function coreJokerUse(teamId, uid, selRaw){
     const j = jokerById(h.id);
     const fail = m=>{ addNotice(t,m); syncAll(); };
     if(!j){ return fail("❌ Kart bulunamadı."); }
+    if(gamePhase==="over"){ return fail("Oyun bitti, joker kullanılamaz."); }
     if(t.freeze){ return fail("🧊 Kadron dondurulmuş, joker kullanamazsın."); }
     if(h.blocked && h.blocked===t.id){ return fail("🚫 Bu kart bloklandı, kullanamazsın."); }
     const sel = normSel(selRaw);
+    if(oneJoker && oneJoker.used[t.id]){ return fail("🚫 Yasaklı Tur: bu turda yalnızca bir joker kullanabilirsin."); }
     if(h.cantUseOn && h.cantUseOn===sel.team){ return fail("❌ Bu kartı o oyuncuya karşı kullanamazsın."); }
     const chk = applyJokerFx(t, j, sel, true);
     if(chk.err){ return fail("❌ "+j.name+": "+chk.err); }
@@ -5890,11 +6453,12 @@ const OP_IN = {
     ban:["team"], banNext:["team"], tcut:["team"], "t-":["team"], freeze:["team"], forcebuy:["team"], banp:["team"],
     stealcard:["team"], blockcard:["team"], shock:["team"], ptax:["team"], comm:["team"], panic:["team"], swapsquad:["team"],
     jban:["team"], "info:budget":["team"], "info:handof":["team"],
-    injure:["team","tslot"], takeover:["team","tslot"], forcesell:["team","tslot"], silent:["team","tslot"],
+    injure:["team","tslot"], takeover:["team","tslot"], forcesell:["team","tslot"], silent:["teamself","tslot"],
     swap:["team","tslot"], lockp:["team","tslot"], posswap:["teamself","tslot","nslot"],
     sellown:["mslot"], plock:["mslot"], loyal:["mslot"], eternal:["mslot"], insp:["mslot"],
     sellbench:["mbench"], buyback:["buyback"], mkt:["market"], pack:["market","market"],
-    alist:["pos3"], track:["pos3"], trap:["amount"]
+    alist:["pos3"], track:["pos3"], trap:["amount"], fort:["mslot"],
+    heal:["teamself","tslot"], spec:["mslot"], presscopy:["team"]
 };
 
 function parseFx(fx){
@@ -5953,6 +6517,7 @@ function findKey(team,id){
 function lateNote(x,text,late){ if(late){ (x.late=x.late||[]).push(text); } else { addNotice(x,text); } }
 
 function payAmount(team, amount){
+    if(team.allin){ team.allin = false; const off0 = Math.round(amount*0.2); amount -= off0; addNotice(team,"🎲 Ya Hep Ya Hiç: %20 indirim ("+fmt(off0)+" M€)."); }
     if(!team.disc){ return amount; }
     const off = Math.min(Math.round(amount*team.disc.pct/100), team.disc.cap);
     team.disc = null;
@@ -5982,6 +6547,14 @@ function cancelBuy(b, refund){
 function gateAttack(ctx){
     const t = ctx.t, j = ctx.j;
     let tg = ctx.tg;
+    if(tg.blocked && tg.blocked.includes(j.id)){
+        addNotice(tg,"🛡 "+j.name+" kartı senin engelin yüzünden işlemedi."); addNotice(t,"🚫 "+teamLabel(tg)+" bu kartı kendine karşı engellemiş; kart yandı.");
+        return { stop:"Hedef bu kartı engellemiş." };
+    }
+    if(tg.immTo && tg.immTo[t.id] && tg.immTo[t.id].includes(j.id)){
+        addNotice(tg,"🛡 "+teamLabel(t)+" bu kartı sana karşı kullanamaz; işlemedi."); addNotice(t,"🚫 Bu kart "+teamLabel(tg)+" üzerinde etki etmez; yandı.");
+        return { stop:"Hedef bu karta karşı bağışık." };
+    }
     if(tg.jokerBan && tg.jokerBan[t.id]>0){
         addNotice(t,"🚫 "+teamLabel(tg)+" sana karşı kart kullanımını yasaklamıştı; "+j.name+" yandı.");
         return { stop:"Kart yandı: hedef bu oyuncuya karşı kart yasağı koymuş." };
@@ -6013,13 +6586,15 @@ function gateAttack(ctx){
     }
     if(tg.varOn){
         tg.varOn = false;
-        if(Math.random()<0.5){ addNotice(tg,"📺 VAR: "+j.name+" geçersiz sayıldı."); return { stop:"VAR yazı-turasını hedef kazandı, kart işlemedi." }; }
-        addNotice(tg,"📺 VAR incelemesi kartı geçersiz kılamadı.");
+        const valid = Math.random()>=0.5;
+        t.wheel = { id:++wheelCounter, valid:valid, card:j.name };
+        if(!valid){ addNotice(tg,"📺 VAR: "+j.name+" geçersiz sayıldı."); addNotice(t,"📺 VAR çarkı: ONAYLANMADI, kart işlemedi."); return { stop:"VAR çarkı ONAYLANMADI çıkardı, kart işlemedi." }; }
+        addNotice(tg,"📺 VAR incelemesi kartı geçersiz kılamadı."); addNotice(t,"📺 VAR çarkı: ONAYLANDI.");
     }
     if(tg.hasarli){
         tg.hasarli = false;
-        tg.jokers.push({ uid:"u"+(++jokerUidCounter), id:j.id, pending:false, cantUseOn:t.id });
-        addNotice(tg,"📋 Hasarlı Kalkan: "+j.name+" kartının kopyasını aldın (kullanan oyuncu hariç herkese kullanabilirsin).");
+        tg.jokers.push({ uid:"u"+(++jokerUidCounter), id:j.id, pending:false });
+        addNotice(tg,"📋 Hasarlı Kalkan: "+j.name+" kartının kopyasını aldın (kartı sana kullanan oyuncuya karşı da dahil herkese kullanabilirsin).");
     }
     return null;
 }
@@ -6030,6 +6605,10 @@ function applyJokerFx(t, j, sel, dry){
     const ops = parseFx(j.fx);
     const need = fxInputs(j);
     if(!dry){ const pre = applyJokerFx(t, j, sel, true); if(pre.err){ return pre; } }
+    if(!dry && ops.some(o=>o.k==="swapsquad") && lockedPositions.size>0){
+        const pl = jokerDB.filter(x=>x.count>0 && !/swapsquad/.test(x.fx));
+        if(pl.length){ const nj = pl[Math.floor(Math.random()*pl.length)]; nj.count--; t.jokers.push({ uid:"u"+(++jokerUidCounter), id:nj.id, pending:false }); return { note:"Oyun başladığı için kart değiştirildi: yeni kartın "+nj.name, burned:true }; }
+    }
     const ctx = { t:t, j:j, sel:sel, dry:!!dry, tg:null, ops:ops };
     const notes = [];
 
@@ -6050,7 +6629,9 @@ function applyJokerFx(t, j, sel, dry){
     if(need.includes("tslot")){
         if(!SLOTS.some(s=>s.key===sel.tslot)){ return { err:"Oyuncu / mevki seçilmedi." }; }
         const tp0 = ctx.tg.starters[sel.tslot];
-        if(!tp0){ return { err:"Seçtiğin mevkide ilk 11 oyuncusu yok." }; }
+        if(ctx.tg && ctx.tg!==t && ctx.tg.fort && ctx.tg.fort.includes(sel.tslot)){ return { err:"Bu mevki tahkimatlı, kart işlemez." }; }
+        if(ctx.tg && ctx.tg!==t && t.fort && t.fort.includes(sel.tslot)){ return { err:"Tahkimat kurduğun mevkide rakibe kart kullanamazsın." }; }
+        if(!tp0 && !ops.some(o=>o.k==="heal")){ return { err:"Seçtiğin mevkide oyuncu yok." }; }
         if(isProt(tp0) && ctx.tg!==t){ return { err:"Bu oyuncu korumalı, hedef alınamaz." }; }
     }
     if(need.includes("nslot") && (!SLOTS.some(s=>s.key===sel.nslot) || sel.nslot===sel.tslot)){ return { err:"Geçerli bir yeni mevki seç." }; }
@@ -6067,10 +6648,10 @@ function applyJokerFx(t, j, sel, dry){
     const attack = ops.some(o=>ATTACK_OPS.has(o.k));
     ctx.slotOp = ops.some(o=>SLOT_ATTACK.has(o.k)) || (ops.some(o=>o.k==="posswap") && ctx.tg && ctx.tg!==t);
     const isAtk = attack || (ops.some(o=>o.k==="posswap") && ctx.tg && ctx.tg!==t);
-    if(isAtk && ctx.tg && ctx.tg===t && !ops.some(o=>o.k==="posswap")){ return { err:"Kartı kendine uygulayamazsın." }; }
+    if(isAtk && ctx.tg && ctx.tg===t && !ops.some(o=>o.k==="posswap" || o.k==="silent")){ return { err:"Kartı kendine uygulayamazsın." }; }
 
     /* kuru çalışmada kapıyı çalıştırma; ama durum doğrulamasını yap */
-    if(!dry && isAtk && ctx.tg){
+    if(!dry && isAtk && ctx.tg && ctx.tg!==t){
         const g = gateAttack(ctx);
         if(g && g.stop){ return { note:g.stop, burned:true }; }
     }
@@ -6107,13 +6688,17 @@ function applyJokerFx(t, j, sel, dry){
         else if(k==="info"){
             if(a==="budgets"){ if(!dry){ addNotice(t,"💰 Bütçeler: "+teams.filter(x=>x!==t).map(x=>teamLabel(x)+" "+fmt(x.budget)+" M€").join(" • ")); } }
             else if(a==="budget"){ if(needAuction()){ return { err:"Bu kart yalnızca ihale sürerken kullanılır." }; } if(!dry){ addNotice(t,"💰 "+teamLabel(tg)+" kalan parası: "+fmt(tg.budget)+" M€"); } }
-            else if(a==="cards"){ if(!dry){ addNotice(t,"🃏 Joker sayıları: "+teams.map(x=>teamLabel(x)+" "+x.jokers.length).join(" • ")); } }
+            else if(a==="cards"){ if(!dry){ addNotice(t,"🃏 Eldeki kartlar: "+teams.map(x=>teamLabel(x)+" ("+x.jokers.length+"): "+(x.jokers.map(h=>{ const jj=jokerById(h.id); return jj?jj.name:"?"; }).join(", ")||"—")).join(" • ")); } }
             else if(a==="handof"){ if(!dry){ addNotice(t,"🔍 "+teamLabel(tg)+" jokerleri: "+(tg.jokers.map(h=>{ const jj=jokerById(h.id); return jj?jj.name:"?"; }).join(", ")||"yok")); } }
         }
         else if(k==="alist"){
-            if(!dry){ sel.pos.forEach(pos=>{ const l = playerDB.filter(p=>p.position===pos && !p.owner).sort((x,y)=>y.value-x.value).slice(0,12).map(p=>p.name+" ("+fmt(p.value)+")").join(", "); addNotice(t,"📋 "+pos+": "+(l||"oyuncu yok")); }); }
+            if(!dry){ t.openPos = (t.openPos||[]).concat(sel.pos.filter(pp=>!(t.openPos||[]).includes(pp))); sel.pos.forEach(pos=>{ const l = playerDB.filter(p=>p.position===pos && !p.owner).sort((x,y)=>y.value-x.value).slice(0,12).map(p=>p.name+" ("+fmt(p.value)+")").join(", "); addNotice(t,"📋 "+pos+": "+(l||"oyuncu yok")); }); }
         }
-        else if(k==="track"){ if(!dry){ addNotice(t,"🔭 Seçtiğin mevkiler: "+sel.pos.join(", ")+". Sıralamayı moderatör sana sözlü bildirecek."); modNote("🔭 "+teamLabel(t)+" Mevki Takibi kullandı: "+sel.pos.join(", ")+" — hangi sırada çıkacağını ona söyle."); } }
+        else if(k==="track"){ if(!dry){
+            let txt = sel.pos.join(", ");
+            try{ const r2 = prompt("🔭 Mevki Takibi — "+teamLabel(t)+" seçtiği mevkiler: "+txt+"\nİhaleye çıkacak mevkileri işaretle (virgülle yaz):", txt); if(r2!==null && r2.trim()){ txt = r2.trim(); } }catch(e){}
+            t.trackInfo = txt; addNotice(t,"🔭 Mevki Takibi: ihaleye çıkacak mevkiler → "+txt); modNote("🔭 "+teamLabel(t)+" Mevki Takibi: "+txt+" bilgisi iletildi.");
+        } }
         else if(k==="next3"){
             if(!(auction.queue&&auction.queue.length) || auction.index>=auction.queue.length){ return { err:"Sırada oyuncu yok." }; }
             if(!dry){ const nx = auction.queue.slice(auction.index+(auction.active?1:0), auction.index+(auction.active?1:0)+1); addNotice(t,"⏭ Sıradaki oyuncu: "+(nx.map(p=>p.name+" ("+fmt(p.value)+" M€)").join(", ")||"yok")); }
@@ -6157,7 +6742,7 @@ function applyJokerFx(t, j, sel, dry){
         else if(k==="comm"){ if(!dry){ tg.commTo = t.id; addNotice(tg,"✂️ Komisyoncu: bir sonraki satışının %50'si "+teamLabel(t)+" tarafından kesilecek."); } }
         else if(k==="panic"){ if(!dry){ tg.panic = true; addNotice(tg,"🚨 Panik Butonu: tur sonunda en değerli oyuncun satılacak."); } }
         else if(k==="freeze"){ if(!dry){ tg.freeze = true; addNotice(tg,"🧊 "+j.name+": bu tur kadronda değişiklik ve joker kullanımı yok."); } }
-        else if(k==="forcebuy"){ if(!dry){ tg.forceBuy = true; addNotice(tg,"⚠️ "+j.name+": bir sonraki ihalede 4. futbolcuyu almak zorundasın."); modNote("⚠️ "+teamLabel(tg)+" zorla transfer ile bağlandı: ihalede oyuncu almazsa moderatör takip etsin."); } }
+        else if(k==="forcebuy"){ if(!dry){ tg.forceBuy = true; addNotice(tg,"⚠️ "+j.name+": bir sonraki ihalede oyuncuya kimse teklif vermezse o oyuncuyu ihaledeki değeriyle zorla almış olursun."); } }
         else if(k==="swapsquad"){
             if(!dry){ [t.starters,tg.starters]=[tg.starters,t.starters]; [t.bench,tg.bench]=[tg.bench,t.bench];
                 [t,tg].forEach(x=>Object.values(x.starters).concat(Object.values(x.bench)).forEach(p=>{ if(p){ p.owner=x.id; } }));
@@ -6168,7 +6753,7 @@ function applyJokerFx(t, j, sel, dry){
             if(!pool.length){ return { err:"Hedefin elinde kullanılabilir kart yok." }; }
             if(!dry){
                 const h = pool[Math.floor(Math.random()*pool.length)], jj = jokerById(h.id);
-                if(k==="stealcard"){ tg.jokers = tg.jokers.filter(x=>x!==h); h.cantUseOn = tg.id; t.jokers.push(h); addNotice(t,"🃏 Kart çaldın: "+(jj?jj.name:"?")+" (bu kartı "+teamLabel(tg)+" kişisine karşı kullanamazsın)."); addNotice(tg,"🃏 "+teamLabel(t)+" elinden bir kart çaldı!"); }
+                if(k==="stealcard"){ tg.jokers = tg.jokers.filter(x=>x!==h); t.jokers.push(h); addNotice(t,"🃏 Kart çaldın: "+(jj?jj.name:"?")+" (istersen "+teamLabel(tg)+" kişisine karşı da kullanabilirsin)."); addNotice(tg,"🃏 "+teamLabel(t)+" elinden bir kart çaldı!"); }
                 else{ h.cantUseOn = t.id; addNotice(t,"🃏 Rastgele seçilen kart: "+(jj?jj.name:"?")+". "+teamLabel(tg)+" bu kartı sana karşı kullanamaz."); }
             }
         }
@@ -6186,6 +6771,7 @@ function applyJokerFx(t, j, sel, dry){
         else if(k==="lockp"){
             const tp = tg.starters[sel.tslot];
             if(tp.value<Number(c||0)){ return { err:"Bu oyuncu "+c+" M€ altında, kart işlemez." }; }
+            if(o.d && tp.value>Number(o.d)){ return { err:"Bu oyuncu "+o.d+" M€ üstünde, kart işlemez." }; }
             if(!dry){ tp.noSell = Number(a||3); addNotice(tg,"🔒 "+tp.name+" "+(a||3)+" mevki turu kilitlendi, satılamaz."); }
         }
         else if(k==="silent"){
@@ -6278,12 +6864,11 @@ function applyJokerFx(t, j, sel, dry){
                 const lo = Number(o.d)||0; if(ps[0].value<lo){ return { err:"Oyuncu en az "+lo+" M€ olmalı." }; }
             }
             const cost = k==="mkt" ? Math.round(total*Number(a||100)/100)+Number(b||0) : Math.round(total*Number(a||(k==="pack"?80:50))/100);
-            if(t.budget<cost){ return { err:"Bütçen yetmiyor ("+fmt(cost)+" M€ gerekli)." }; }
+            if(t.budget<cost){ if(k==="pack"){ if(dry){ continue; } return { note:"Bütçen yetmediği için kart iptal oldu.", burned:true }; } return { err:"Bütçen yetmiyor ("+fmt(cost)+" M€ gerekli)." }; }
             const cnt = {}; ps.forEach(p=>{ cnt[p.position]=(cnt[p.position]||0)+1; });
-            for(const pos in cnt){ if(freeCount(t,pos)<cnt[pos]){ return { err:pos+" mevkisinde boş yerin yok." }; } }
             if(!dry){
                 t.budget -= cost; t.spent += cost;
-                ps.forEach(p=>{ placePurchased(t,p); p.owner = t.id; p.soldFrom = null; t.boughtCount++; addNotice(t,"✅ "+p.name+" kadroya katıldı."); });
+                ps.forEach(p=>{ placeSwap(t,p); p.owner = t.id; p.soldFrom = null; t.boughtCount++; addNotice(t,"✅ "+p.name+" kadroya katıldı."); });
                 addNotice(t,"💶 Ödenen: "+fmt(cost)+" M€");
             }
         }
@@ -6327,6 +6912,72 @@ function applyJokerFx(t, j, sel, dry){
                 teams.forEach(x=>addNotice(x,"♻️ Tekrar Müzayede: "+pos+" mevkisindeki tüm transferler iptal, mevki yeniden yapılacak."));
                 notes.push(pos+" mevkisi yeniden açıldı; satış turu ve ihaleyi tekrar başlat.");
                 lastBuys = null; fillPositionSelects();
+                if(auction.position===pos && auction.queue.length && !auction.active){ auction.finished = false; auction.current = null; auction.index = 0; auction.buys = []; auction.result = null; loadNextAuctionPlayer(); notes.push('İhale listesi aynı şekilde baştan otomatik başlatıldı.'); }
+            }
+        }
+        else if(k==="heal"){
+            if(tg!==t){ return { err:"Yalnızca kendi oyuncunu iyileştirebilirsin." }; }
+            const bp = tg.bench[sel.tslot];
+            if(!bp || !bp.injured){ return { err:"Seçtiğin mevkide sakat oyuncun yok." }; }
+            if(!dry){ const sp = tg.starters[sel.tslot]; delete tg.bench[sel.tslot]; bp.injured = false; tg.starters[sel.tslot] = bp; if(sp){ tg.bench[sel.tslot] = sp; } addNotice(tg,"💊 "+bp.name+" iyileşti ve sahaya döndü."); }
+        }
+        else if(k==="allin"){ if(t.allin){ return { err:"Zaten aktif." }; } if(!dry){ t.allin = true; addNotice(t,"🎲 Ya Hep Ya Hiç aktif: sonraki teklifinde kazanırsan %20 indirim, kaybedersen teklifinin %10'u gider."); } }
+        else if(k==="spec"){ if(!dry){ const sp0 = t.starters[sel.mslot]; t.specs = (t.specs||[]).concat(sp0.id); addNotice(t,"📈 "+sp0.name+" için spekülatif yatırım yapıldı; tur sonunda değeri %25 artar/düşer."); } }
+        else if(k==="again"){
+            const lj0 = t.lastJoker;
+            if(!lj0){ return { err:"Daha önce kullandığın bir joker yok." }; }
+            if(!dry){ t.jokers.push({ uid:"u"+(++jokerUidCounter), id:lj0.id, pending:false, cantUseOn:lj0.tg||undefined }); const jn = jokerById(lj0.id); addNotice(t,"🔁 İkinci Şans: "+(jn?jn.name:"kart")+" yeniden elinde (aynı rakibe kullanılamaz)."); }
+        }
+        else if(k==="lastbid"){ if(!dry){ t.lastBid = true; addNotice(t,"⏳ Son Saniye aktif: bir sonraki ihalenin sonunda son teklif hakkın var."); } }
+        else if(k==="swapplan"){
+            if(t.draw){ return { err:"Bekleyen kart seçimin var." }; }
+            if(!dry){ const pl2 = jokerDB.filter(x=>x.count>0).sort(()=>Math.random()-0.5).slice(0,3); if(!pl2.length){ notes.push("Stokta kart yok."); } else { t.draw = pl2.map(x=>x.id); addNotice(t,"🔀 Planı değiştirdin: 3 karttan birini seç!"); } }
+        }
+        else if(k==="withdraw"){ if(!dry){ t.canWithdraw = true; addNotice(t,"↩️ Son Anda Çekilme hakkı doğdu: ihale ekranındaki 'Çekil' ile istediğin an teklifini geri çekebilirsin."); } }
+        else if(k==="onejoker"){ if(!dry){ oneJoker = { used:{} }; teams.forEach(x=>addNotice(x,"🚫 Yasaklı Tur: bu turda herkes yalnızca bir joker kullanabilir.")); } }
+        else if(k==="presscopy"){
+            const lh = t.lastHit;
+            if(!lh){ return { err:"Sana en son uygulanan kart bulunamadı." }; }
+            const lj1 = jokerById(lh.id);
+            if(!lj1){ return { err:"Kart bulunamadı." }; }
+            if(!dry){ const sel2 = Object.assign({}, lh.sel||{}, { team:tg.id }); const rr = applyJokerFx(t, lj1, sel2, false); notes.push(lj1.name+" kartı "+teamLabel(tg)+" oyuncusuna karşı kullanıldı"+(rr.err?" — hata: "+rr.err:"")+(rr.note?" ("+rr.note+")":"")); }
+        }
+        else if(k==="blockpick"){
+            const hl = t.hitLog||[];
+            if(!hl.length){ return { err:"Sana kullanılmış kart yok." }; }
+            if(!dry){
+                const ids = []; hl.slice().reverse().forEach(h=>{ if(!ids.includes(h.id)){ ids.push(h.id); } });
+                const opts = ids.slice(0,Number(a||3)).map(id=>{ const jj = jokerById(id); return { v:id, l:jj?jj.name:"?" }; });
+                giveChoice(t,"block",j.name,"Sana kullanılan kartlardan birini seç; o kart bundan sonra sana karşı kullanılamaz.",[{ key:"card", label:"Engellenecek kart", options:opts }]);
+                notes.push("Oyuncuya engellenecek kartı seçme bildirimi gitti.");
+            }
+        }
+        else if(k==="immpick"){
+            if(!dry){
+                giveChoice(t,"imm",j.name,"Bir rakip ve bir kart seç: o rakip bu kartı oyun boyunca sana karşı kullanamaz.",[
+                    { key:"team", label:"Rakip", options:teams.filter(x=>x!==t).map(x=>({ v:String(x.id), l:teamLabel(x) })) },
+                    { key:"card", label:"Kart", options:jokerDB.map(x=>({ v:x.id, l:x.name })) }]);
+                notes.push("Oyuncuya rakip ve kart seçme bildirimi gitti.");
+            }
+        }
+        else if(k==="pswap"){
+            if(!dry){
+                const opts = [];
+                teams.forEach(x=>SLOTS.forEach(sl=>{ const p = x.starters[sl.key]; if(p){ opts.push({ v:x.id+":"+sl.key, l:teamLabel(x)+" · "+sl.label+": "+p.name }); } }));
+                giveChoice(t,"pswap",j.name,"Mevkilerini değiştireceğin iki oyuncuyu seç (rakip ya da kendi kadron). Kendi mevkisinde oynamayan oyuncu puanlamada eksi puan alır.",[{ key:"a", label:"1. oyuncu", options:opts },{ key:"b", label:"2. oyuncu", options:opts }],{ jid:j.id });
+                notes.push("Oyuncuya iki oyuncu seçme bildirimi gitti.");
+            }
+        }
+        else if(k==="fort"){
+            if(t.fort && t.fort.length){ return { err:"Zaten bir mevkiyi tahkim ettin." }; }
+            if(!dry){ t.fort = [sel.mslot]; addNotice(t,"🏰 "+slotLabel(sel.mslot)+" mevkisi tahkim edildi: oyun boyunca ona kart işlemez; sen de rakiplerin bu mevkisine kart kullanamazsın."); }
+        }
+        else if(k==="blindlist"){
+            if(!auction.queue.length || auction.active || auction.current){ return { err:"Kör Teklif, ihale listesi hazırken ve ihale başlamadan önce kullanılır." }; }
+            if(!dry){
+                const items = auction.queue.map(p=>({ id:p.id, name:p.name, value:p.value, club:p.club }));
+                giveChoice(t,"order",j.name,"İhale listesinin sırasını belirle. Oyuncular adı gizli, 35 M€ taban fiyatla kör teklifle satılacak.",[],{ items:items });
+                notes.push("Oyuncuya sıralama seçme bildirimi gitti; ihale sıralama bitene kadar başlatılamaz.");
             }
         }
         else if(k==="shield"){ }
@@ -6363,6 +7014,7 @@ function resolveJoker(rid, ok){
     const h = t && t.jokers.find(x=>x.uid===r.uid);
     if(!t || !h){ jokerRequests.splice(i,1); syncAll(); return; }
     if(ok){
+        const hadOne = !!oneJoker;
         const res = j ? applyJokerFx(t, j, r.sel, false) : { note:"" };
         if(res.err){ alert(res.err+"\n\nİstersen Reddet'e bas; kart oyuncuda kalır."); return; }
         jokerRequests.splice(i,1);
@@ -6372,6 +7024,11 @@ function resolveJoker(rid, ok){
         if(!t.active){ t.active = []; }
         if(!res.burned){ t.active.push(j ? j.name : "Joker"); }
         const tg = getTeam(r.sel && r.sel.team);
+        if(hadOne && oneJoker){ oneJoker.used[t.id] = true; }
+        if(j && !res.err){
+            if(!/again/.test(j.fx)){ t.lastJoker = { id:j.id, tg:(r.sel && r.sel.team) || null }; }
+            if(tg && tg!==t && !res.burned && !/presscopy|silent|night/.test(j.fx)){ tg.lastHit = { id:j.id, sel:r.sel }; (tg.hitLog = tg.hitLog||[]).push({ id:j.id }); }
+        }
         modNote((res.burned?"🔥 Yandı: ":"✅ Onaylandı: ")+teamLabel(t)+" → "+(j?j.name:"?")+(tg?" → "+teamLabel(tg):"")+(res.note?" ("+res.note+")":""));
         addNotice(t, (res.burned?"🔥 ":"✅ ")+(j?j.name:"Joker")+(res.burned?" etki etmedi. ":" uygulandı. ")+(res.note||""));
         if(tg && tg!==t && !res.burned && !(j && /silent|night/.test(j.fx))){ addNotice(tg, "🃏 "+teamLabel(t)+" sana karşı "+(j?j.name:"joker")+" kullandı."); }
@@ -6390,6 +7047,7 @@ function resolveJoker(rid, ok){
 let modLog = [];
 
 function modNote(text){
+    try{ if(role==="mod" && /ONAYINI BEKL|MANUEL KART/.test(text) && navigator.vibrate){ navigator.vibrate([250,120,250]); } }catch(e){}
     const d = new Date();
     modLog.unshift({ t:String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")+":"+String(d.getSeconds()).padStart(2,"0"), x:text });
     if(modLog.length>60){ modLog.pop(); }
@@ -6569,59 +7227,63 @@ function buildTeamViewLayout(){
 
     $("teamView").innerHTML = `
 
-        <h2 id="tvTitle"></h2>
+        <div class="tvHead"><h2 id="tvTitle"></h2><div class="budgetPill">💶 <span id="stBudgetTop"></span></div></div>
 
-        <div class="statGrid">
-            <div class="statBox"><div class="sl">Kalan ihale parası</div><div class="sv" id="stBudget"></div></div>
-            <div class="statBox"><div class="sl">As kadro değeri</div><div class="sv" id="stAs"></div></div>
-            <div class="statBox"><div class="sl">Yedek kadro değeri</div><div class="sv" id="stBench"></div></div>
-            <div class="statBox"><div class="sl">Toplam kadro değeri</div><div class="sv" id="stTotal"></div></div>
-            <div class="statBox"><div class="sl">Sattığın oyuncu</div><div class="sv" id="stSoldCount"></div></div>
-            <div class="statBox"><div class="sl">Toplam satış parası</div><div class="sv" id="stSoldMoney"></div></div>
-            <div class="statBox"><div class="sl">Aldığın oyuncu</div><div class="sv" id="stBought"></div></div>
-            <div class="statBox"><div class="sl">Toplam harcama</div><div class="sv" id="stSpent"></div></div>
-        </div>
+        <div data-sec="auction" class="on">
+            <div class="promptBox" id="tvPrompt" style="display:none"></div>
+            <div class="choiceBox" id="tvChoice" style="display:none"></div>
 
-        <div class="smallNote" id="tvLocks" style="opacity:1;margin:-6px 0 12px"></div>
+            <div class="auctionBox">
+                <div class="auctionPosition" id="tvAucPos">İHALE BEKLENİYOR</div>
+                <div class="auctionPlayer" id="tvAucName">—</div>
+                <div class="auctionClub" id="tvAucClub"></div>
+                <div class="auctionValue" id="tvAucValue"></div>
+                <div class="timer" id="tvAucTimer"></div>
+                <div class="lastBidTag" id="tvAucLastBid"></div>
+                <div class="leaderTag" id="tvAucLeader"></div>
 
-        <div class="promptBox" id="tvPrompt" style="display:none"></div>
+                <div class="bidRow" id="tvBidRow">
+                    <input id="bidInput" type="number" placeholder="Teklif (M€)">
+                    <button class="quick" onclick="quickBid(5)">+5</button>
+                    <button class="quick" onclick="quickBid(10)">+10</button>
+                    <button class="quick" onclick="uiPass()">⏭ Pas</button>
+                    <button class="quick" onclick="uiWithdraw()">↩️ Çekil</button>
+                    <button onclick="uiBid()">TEKLİF VER</button>
+                </div>
 
-        <div class="auctionBox">
-            <div class="auctionPosition" id="tvAucPos">İHALE BEKLENİYOR</div>
-            <div class="auctionPlayer" id="tvAucName">—</div>
-            <div class="auctionClub" id="tvAucClub"></div>
-            <div class="auctionValue" id="tvAucValue"></div>
-            <div class="timer" id="tvAucTimer"></div>
-            <div class="lastBidTag" id="tvAucLastBid"></div>
-            <div class="leaderTag" id="tvAucLeader"></div>
-
-            <div class="bidRow" id="tvBidRow">
-                <input id="bidInput" type="number" placeholder="Teklif (M€)">
-                <button class="quick" onclick="quickBid(5)">+5</button>
-                <button class="quick" onclick="quickBid(10)">+10</button>
-                <button onclick="uiBid()">TEKLİF VER</button>
+                <div class="resultTag" id="tvAucResult"></div>
             </div>
-
-            <div class="resultTag" id="tvAucResult"></div>
         </div>
 
-        <div id="tvJoker"></div>
-
-        <div class="panel modOnly" id="modSquadEditor" style="display:none;text-align:left">
-          <h3>🛠 Moderatör: Kadro düzenleme</h3>
-          <div class="smallNote" style="opacity:1">Her mevkinin as ve yedek oyuncusunu havuzdan değiştirebilir veya boşaltabilirsin.</div>
-          <div id="modSquadEditorRows"></div>
+        <div data-sec="squad">
+            <div class="statGrid">
+                <div class="statBox"><div class="sl">Kalan ihale parası</div><div class="sv" id="stBudget"></div></div>
+                <div class="statBox"><div class="sl">As kadro değeri</div><div class="sv" id="stAs"></div></div>
+                <div class="statBox"><div class="sl">Yedek kadro değeri</div><div class="sv" id="stBench"></div></div>
+                <div class="statBox"><div class="sl">Toplam kadro değeri</div><div class="sv" id="stTotal"></div></div>
+                <div class="statBox"><div class="sl">Sattığın oyuncu</div><div class="sv" id="stSoldCount"></div></div>
+                <div class="statBox"><div class="sl">Toplam satış parası</div><div class="sv" id="stSoldMoney"></div></div>
+                <div class="statBox"><div class="sl">Aldığın oyuncu</div><div class="sv" id="stBought"></div></div>
+                <div class="statBox"><div class="sl">Toplam harcama</div><div class="sv" id="stSpent"></div></div>
+            </div>
+            <div class="smallNote" id="tvLocks" style="opacity:1;margin:-6px 0 12px"></div>
+            <h3>Saha: İlk 11 (1-4-2-3-1)</h3>
+            <div class="onePitch"><div class="pitch" id="tvPitch"></div></div>
         </div>
-        <h3>Saha: İlk 11 (1-4-2-3-1) — her oyuncunun altında yedeği</h3>
-        <div class="onePitch">
-            <div class="pitch" id="tvPitch"></div>
+
+        <div data-sec="joker">
+            <div id="tvJoker"></div>
+            <div id="tvTrack"></div>
+            <div id="tvOpenList"></div>
         </div>
 
-
-        <h3>Bilgiler</h3>
-        <div class="noticeBox" id="tvNotices"></div>
+        <div data-sec="info">
+            <h3>Bilgiler</h3>
+            <div class="noticeBox" id="tvNotices"></div>
+        </div>
 
     `;
+    pSec(window._sec || "auction");
 
 }
 
@@ -6650,24 +7312,59 @@ function shortName(n){
 
 function cardHtml(slot, p, b){
 
+    const editable = role === "mod";
+    const starterClick = editable ? ` onclick="editPitchSlot('${slot.key}','starter')" title="${esc(slot.label)} mevkiini değiştirmek için tıkla"` : "";
+    const benchClick = editable ? ` onclick="editPitchSlot('${slot.key}','bench')" title="Yedeği değiştirmek için tıkla"` : "";
     const bl = b
-        ? `<div class="by" title="${esc(b.name)}"><div class="bt">YEDEK</div><div class="bn2">${esc(b.name)}</div><div class="bv2">${fmt(b.value)} M€</div></div>`
-        : `<div class="by dim"><div class="bt">YEDEK</div><div class="bn2">Boş</div></div>`;
+        ? `<div class="by${editable?" pitchEditable":""}"${benchClick}><div class="bt">YEDEK${editable?" · DÜZENLE":""}</div><div class="bn2">${esc(b.name)}</div><div class="bv2">${fmt(b.value)} M€</div></div>`
+        : `<div class="by dim${editable?" pitchEditable":""}"${benchClick}><div class="bt">YEDEK${editable?" · EKLE":""}</div><div class="bn2">Boş</div></div>`;
 
     if(!p){
-        return `<div class="pc empty"><div class="pl">${esc(slot.label)}</div><div>Boş</div>${bl}</div>`;
+        return `<div class="pc empty${editable?" pitchEditable":""}"${starterClick}><div class="pl">${esc(slot.label)}</div><div>${editable?"＋ Oyuncu ekle":"Boş"}</div>${bl}</div>`;
     }
 
     const fc = (p.fc27!=="" && p.fc27!==undefined) ? esc(p.fc27) : "—";
     const club = esc(clubAbbr(p.club));
 
-    return `<div class="pc" title="${esc(p.name)}">
+    return `<div class="pc${editable?" pitchEditable":""}"${starterClick} title="${esc(p.name)}${editable?" — değiştirmek için tıkla":""}">
         <div class="pn">${esc(shortName(p.name))}</div>
         <div class="pv">${fmt(p.value)} M€</div>
         <div class="pcl">${club} · FC27: ${fc}</div>
         ${bl}
     </div>`;
 
+}
+
+function editPitchSlot(slotKey, layer){
+    if(role !== "mod"){ return; }
+    const team = getTeam(Number(previewTeamId));
+    const slot = SLOTS.find(x => x.key === slotKey);
+    if(!team || !slot){ alert("Önce düzenlenecek takımı seç."); return; }
+    const target = layer === "bench" ? team.bench : team.starters;
+    const current = target[slotKey] || null;
+    const candidates = playerDB.filter(p => p.position === slot.pos && (!p.owner || p.owner === team.id) && !p.modBan && (!current || p.id !== current.id))
+        .sort((a,b) => b.value-a.value);
+    const options = candidates.map((p,i) => `${i+1}. ${p.name} · ${p.club} · ${fmt(p.value)} M€`).join("\n");
+    const action = current ? "Oyuncuyu değiştir" : "Boş mevkiye oyuncu ekle";
+    const answer = prompt(`${teamLabel(team)} — ${slot.label} (${layer === "bench" ? "Yedek" : "İlk 11"})\n${action}. Numara gir.\n0 = mevkiyi boşalt\n\n${options}`, "1");
+    if(answer === null){ return; }
+    const n = Number(answer);
+    if(!Number.isInteger(n) || n < 0 || n > candidates.length){ alert("Listeden geçerli bir numara gir."); return; }
+    if(current){ current.owner = null; }
+    if(n === 0){ delete target[slotKey]; }
+    else{
+        const chosen = candidates[n-1];
+        const other = findKey(team, chosen.id);
+        if(other){
+            if(other.layer === layer && other.key === slotKey){ return; }
+            delete (other.layer === "bench" ? team.bench : team.starters)[other.key];
+        }
+        target[slotKey] = chosen;
+        chosen.owner = team.id;
+    }
+    addNotice(team, `🛠 Moderatör ${slot.label} ${layer === "bench" ? "yedek" : "as kadro"} yerini güncelledi.`);
+    modNote(`🛠 ${teamLabel(team)} — ${slot.label} ${layer === "bench" ? "yedek" : "as kadro"} düzenlendi.`);
+    syncAll();
 }
 
 function benchStripHtml(map){
@@ -6804,43 +7501,6 @@ function submitJm(){
     closeJm();
 }
 
-function renderModeratorSquadEditor(){
-    const panel = $("modSquadEditor"), box = $("modSquadEditorRows");
-    if(!panel || !box) return;
-    if(role !== "mod") { panel.style.display="none"; return; }
-    const team = getTeam(previewTeamId);
-    if(!team) { panel.style.display="none"; return; }
-    panel.style.display="block";
-    box.innerHTML = SLOTS.map(slot => {
-      const currentA = team.starters[slot.key];
-      const currentB = team.bench[slot.key];
-      const opts = getPlayersByPosition(slot.pos).filter(p=>!p.owner || p.owner===team.id || (currentA&&p.id===currentA.id) || (currentB&&p.id===currentB.id));
-      const options = (current)=>'<option value="">— Boş —</option>'+opts.map(p=>`<option value="${p.id}" ${current&&current.id===p.id?'selected':''}>${esc(p.name)} · ${fmt(p.value)} M€</option>`).join('');
-      return `<div class="panel" style="padding:10px;margin:8px 0"><b>${esc(slot.label)}</b>
-        <div class="controlGroup"><label>As oyuncu</label><select id="modA_${slot.key}">${options(currentA)}</select><button class="blueBtn" onclick="modAssignSlot(${team.id},'starters','${slot.key}')">As oyuncuyu uygula</button></div>
-        <div class="controlGroup"><label>Yedek oyuncu</label><select id="modB_${slot.key}">${options(currentB)}</select><button class="grayBtn" onclick="modAssignSlot(${team.id},'bench','${slot.key}')">Yedek oyuncuyu uygula</button></div>
-      </div>`;
-    }).join('');
-}
-function modAssignSlot(teamId, layer, key){
-    if(role!=="mod") return;
-    const team=getTeam(teamId), slot=SLOTS.find(x=>x.key===key);
-    if(!team || !slot || !["starters","bench"].includes(layer)) return;
-    const sel=$("mod"+(layer==="starters"?"A_":"B_")+key);
-    const id=sel.value;
-    const old=team[layer][key];
-    if(old){ old.owner=null; delete team[layer][key]; }
-    if(id){
-      const p=getPlayer(id);
-      if(!p || p.position!==slot.pos){ alert("Bu mevkiye uygun bir oyuncu seç."); if(old){team[layer][key]=old;old.owner=team.id;} return; }
-      if(p.owner && p.owner!==team.id){ const other=getTeam(p.owner); if(other) removeFromTeam(other,p.id); }
-      removeFromTeam(team,p.id);
-      team[layer][key]=p; p.owner=team.id;
-      addNotice(team,p.name+" moderatör tarafından "+slot.label+" mevkiine yerleştirildi.");
-    }
-    syncAll();
-}
-
 function applyView(v, readOnly){
 
     const box = $("teamView");
@@ -6853,11 +7513,11 @@ function applyView(v, readOnly){
     }
 
     $("tvTitle").textContent = v.playerName || v.teamName;
-    renderModeratorSquadEditor();
     renderPlayerJokers(v, readOnly);
     $("tvLocks").textContent = (v.locked && v.locked.length) ? "🔒 Kilitli mevkiler: "+v.locked.join(", ") : "";
 
     $("stBudget").textContent = fmt(v.budget)+" M€";
+    if($("stBudgetTop")){ $("stBudgetTop").textContent = fmt(v.budget)+" M€"; }
     $("stBudget").className = "sv "+(v.budget>0?"valueGood":"valueBad");
 
     $("stAs").textContent = fmt(v.asValue)+" M€";
@@ -6941,7 +7601,7 @@ function applyView(v, readOnly){
 
         $("tvAucPos").textContent = a.position+" İHALESİ";
         $("tvAucName").textContent = a.name;
-        $("tvAucClub").textContent = clubAbbr(a.club)+" | FC27: "+((a.fc27!=="" && a.fc27!==undefined)?a.fc27:"—");
+        $("tvAucClub").textContent = a.blind ? "🙈 KÖR TEKLİF · taban 35 M€" : (a.blindSeen ? "🙈 Kör Teklif (sen görüyorsun) · " : "")+clubAbbr(a.club)+" | FC27: "+((a.fc27!=="" && a.fc27!==undefined)?a.fc27:"—");
 
         $("tvAucValue").textContent = "Minimum teklif: "+fmt(a.minBid)+" M€";
 
@@ -6976,6 +7636,22 @@ function applyView(v, readOnly){
 
     }
 
+    /* Seçim kutusu, çark, açık liste, takip */
+    (function(){
+        const ch = $("tvChoice"), c = v.choice, cid = c ? c.id : 0;
+        if(cid!==window._choiceId){
+            window._choiceId = cid;
+            if(!c){ ch.style.display = "none"; ch.innerHTML = ""; }
+            else if(readOnly){ ch.style.display = "block"; ch.innerHTML = '<div class="promptTitle">🃏 '+esc(c.title)+'</div><div>Oyuncu seçim yapıyor…</div>'; }
+            else{ renderChoice(c); ch.style.display = "block"; pSec("auction"); }
+        }
+        if(v.wheel && !readOnly && v.wheel.id!==window._wheelId){ window._wheelId = v.wheel.id; showWheel(v.wheel); }
+        const hasSP = !!v.sellPrompt; if(hasSP && !window._hadSP && !readOnly){ pSec("auction"); } window._hadSP = hasSP;
+        const hasDr = v.draw>0; if(hasDr && !window._hadDr && !readOnly){ pSec("joker"); } window._hadDr = hasDr;
+        $("tvOpenList").innerHTML = (v.openList && v.openList.length) ? "<h3>📋 Açık Liste</h3>"+v.openList.map(o=>`<div class="jOp"><b>${esc(o.pos)}</b><br><small>${o.list.length ? o.list.map(p=>esc(p.name)+" ("+fmt(p.value)+" M€)").join(", ") : "serbest oyuncu yok"}</small></div>`).join("") : "";
+        $("tvTrack").innerHTML = v.trackInfo ? `<div class="jOp">🔭 <b>Mevki Takibi:</b> ihaleye çıkacak mevkiler → ${esc(v.trackInfo)}</div>` : "";
+    })();
+
     /* Saha ve yedekler yalnızca değiştiğinde yeniden çizilir. */
 
     const sig = JSON.stringify([v.starters, v.bench]);
@@ -6989,9 +7665,13 @@ function applyView(v, readOnly){
 
     }
 
+    try{ const ln = v.notices[v.notices.length-1]; if(window._lastN!==undefined && ln!==window._lastN && navigator.vibrate){ navigator.vibrate([200,100,200]); } window._lastN = ln; }catch(e){}
     $("tvNotices").innerHTML = v.notices.slice().reverse().map(n=>`<div>${esc(n)}</div>`).join("") || "<div>—</div>";
 
 }
+
+function uiPass(){ if(role!=="player"){ return; } send({ t:"pass", cid:myCid, teamId:myTeamId }); }
+function uiWithdraw(){ if(role!=="player"){ return; } if(confirm("Teklifini geri çekmek istiyor musun?")){ send({ t:"withdraw", cid:myCid, teamId:myTeamId }); } }
 
 function uiBid(){
 
@@ -7055,7 +7735,7 @@ function syncAll(){
     renderJokerOps();
     renderModFeed();
     renderPlayersTable();
-    renderEndTab();
+    mvRefresh();
     scheduleSave();
 
 }

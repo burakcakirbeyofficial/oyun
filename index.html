@@ -9810,35 +9810,37 @@ body.playerMode.auctionCritical #teamView [data-sec="auction"] .auctionBox{
      ============================================================ -->
 <style id="mercato-user-final-20261013">
 /* Normal durum: sayaç yeşil */
-body.playerMode #teamView #tvAucTimer{
+body #teamView #tvAucTimer{
   color:#4dff9a!important;transition:color .12s ease;
 }
-/* Hafif kırmızı flash katmanı (her saniye bir kez atar) */
+/* Fotoğraftaki gibi: kenarlarda parlayan neon kırmızı çerçeve + üstten aşağı sönen kırmızı gradyan */
 #mercatoRed5Overlay{
   position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;
-  z-index:2147483647;display:none;pointer-events:none;
-  background:rgba(255,0,0,0);box-shadow:inset 0 0 70px 10px rgba(255,0,0,0);
+  z-index:2147483647;display:none;pointer-events:none;box-sizing:border-box;
+  border-radius:26px;opacity:.4;
+  background:linear-gradient(to bottom,rgba(190,0,20,.55) 0%,rgba(120,0,10,.28) 30%,rgba(0,0,0,0) 62%);
+  box-shadow:inset 0 0 0 3px rgba(255,40,60,.95),
+             inset 0 0 22px 6px rgba(255,20,40,.95),
+             inset 0 0 80px 22px rgba(255,0,0,.55);
 }
-body.playerMode.mercatoRed5 #mercatoRed5Overlay{display:block}
-body.playerMode.mercatoRed5 #mercatoRed5Overlay.pulse{
-  animation:mercatoRed5Pulse .9s ease-out 1;
+body.mercatoRed5 #mercatoRed5Overlay{display:block}
+/* Her saniye tam parlaklıkla çakar, sonra yumuşakça söner (sayaçla eş zamanlı) */
+body.mercatoRed5 #mercatoRed5Overlay.pulse{
+  animation:mercatoRed5Pulse .95s ease-out 1 forwards;
 }
 /* Son 5 saniye: sayaç kırmızı + hafif titreme */
-body.playerMode.mercatoRed5 #teamView #tvAucTimer{
+body.mercatoRed5 #teamView #tvAucTimer{
   color:#ff3b3b!important;border-color:rgba(255,59,59,.7)!important;
   background:rgba(255,0,0,.14)!important;
   text-shadow:0 0 10px rgba(255,0,0,.55);
   animation:mercatoRed5Shake .32s linear infinite!important;
 }
-body.playerMode.mercatoRed5 #teamView .auctionBox{
+body.mercatoRed5 #teamView .auctionBox{
   border-color:rgba(255,70,70,.65)!important;
   animation:mercatoRed5BoxShake .32s linear infinite!important;
 }
-body:not(.playerMode) #mercatoRed5Overlay{display:none!important}
-@keyframes mercatoRed5Pulse{
-  0%{background:rgba(255,0,0,.20);box-shadow:inset 0 0 70px 14px rgba(255,0,0,.45)}
-  100%{background:rgba(255,0,0,0);box-shadow:inset 0 0 70px 10px rgba(255,0,0,0)}
-}
+
+@keyframes mercatoRed5Pulse{0%{opacity:1}100%{opacity:.4}}
 @keyframes mercatoRed5Shake{
   0%,100%{transform:translate(0,0)}
   25%{transform:translate(-2px,1px)}
@@ -9852,8 +9854,8 @@ body:not(.playerMode) #mercatoRed5Overlay{display:none!important}
   75%{transform:translate(0,-1px)}
 }
 @media(prefers-reduced-motion:reduce){
-  body.playerMode.mercatoRed5 #teamView #tvAucTimer,
-  body.playerMode.mercatoRed5 #teamView .auctionBox{animation:none!important}
+  body.mercatoRed5 #teamView #tvAucTimer,
+  body.mercatoRed5 #teamView .auctionBox{animation:none!important}
 }
 </style>
 
@@ -9863,129 +9865,47 @@ body:not(.playerMode) #mercatoRed5Overlay{display:none!important}
   var userFace = 'squad';      // 'auction' | 'squad' — yalnızca kullanıcı değiştirir
   var initialized = false;
   var lastSec = null;
-
-  function isPlayer(){
-    return !!(document.body && (document.body.classList.contains('playerMode') ||
-      (typeof role!=='undefined' && role==='player')));
-  }
-  function rootEl(){ return document.getElementById('teamView'); }
-  function getAuction(){ try{ if(typeof auction!=='undefined') return auction; }catch(e){} return null; }
-
-  function applyUserFace(face, animate){
-    if(!isPlayer()) return;
-    var root = rootEl(); if(!root) return;
-    face = (face === 'auction') ? 'auction' : 'squad';
-    userFace = face;
-    window._playerFace = face;
-
-    root.classList.remove('mercato-show-auction','mercato-show-squad');
-    root.classList.add(face === 'auction' ? 'mercato-show-auction' : 'mercato-show-squad');
-
-    var a = root.querySelector('[data-sec="auction"]');
-    var q = root.querySelector('[data-sec="squad"]');
-    var j = root.querySelector('[data-sec="joker"]');
-    var i = root.querySelector('[data-sec="info"]');
-    if(a) a.style.setProperty('display', face === 'auction' ? 'block' : 'none', 'important');
-    if(q) q.style.setProperty('display', face === 'squad' ? 'block' : 'none', 'important');
-    if(j) j.style.setProperty('display', face === 'auction' ? 'block' : 'none', 'important');
-    if(i) i.style.setProperty('display', 'block', 'important');
-
-    if(animate){
-      var el = face === 'auction' ? root.querySelector('.auctionBox') : root.querySelector('#tvPitch');
-      if(el){
-        var cls = face === 'auction' ? 'auctionFlip' : 'pitchFlip';
-        el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls);
-      }
+  /* Oyuncu cihazındaki global "auction" nesnesi güvenilir değil;
+     ekrandaki sayaç (#tvAucTimer) ihale verisinden doldurulduğu için onu esas alıyoruz. */
+  function readSeconds(){
+    var t = document.getElementById('tvAucTimer');
+    if(t){
+      var txt = (t.textContent || '').trim();
+      if(/⏸/.test(txt)) return NaN;            // duraklatılmış
+      var m = txt.match(/^(\d+)$/);
+      if(m) return Number(m[1]);
+      return NaN;                               // boş = sayaç çalışmıyor
     }
-    var btn = document.getElementById('tvFlipToggle');
-    if(btn){
-      var tt = face === 'auction' ? 'Kadroyu göster' : 'İhaleyi göster';
-      btn.title = tt; btn.setAttribute('aria-label', tt);
-    }
+    return NaN;
   }
-
-  /* Eski kodun otomatik geçiş çağrıları: oyuncuda hiçbir şey değiştirmez,
-     sadece kullanıcının seçtiği yüzü korur. Moderatör akışı aynen çalışır. */
-  var origPSec = window.pSec;
-  window.pSec = function(n){
-    if(isPlayer()){ applyUserFace(userFace, false); return; }
-    if(typeof origPSec === 'function') return origPSec.apply(this, arguments);
-  };
-  window.setPlayerFace = function(){ applyUserFace(userFace, false); };
-  window.togglePlayerFace = function(){ applyUserFace(userFace === 'auction' ? 'squad' : 'auction', true); };
-
-  /* İlk açılış: ihale sürüyorsa ihale, yoksa kadro (yalnızca bir kez) */
-  function initialFace(){
-    if(initialized || !isPlayer()) return;
-    var root = rootEl(); if(!root) return;
-    if(!root.querySelector('[data-sec="auction"]') || !root.querySelector('[data-sec="squad"]')) return;
-    initialized = true;
-    var a = getAuction();
-    applyUserFace(!!(a && a.active && !a.finished && a.current) ? 'auction' : 'squad', false);
-  }
-
-  /* ↻ butonu: tek tıkla manuel geçiş */
-  document.addEventListener('click', function(e){
-    var btn = e.target && e.target.closest ? e.target.closest('#tvFlipToggle') : null;
-    if(!btn || !isPlayer()) return;
-    e.preventDefault(); e.stopPropagation();
-    if(e.stopImmediatePropagation) e.stopImmediatePropagation();
-    applyUserFace(userFace === 'auction' ? 'squad' : 'auction', true);
-  }, true);
-
-  /* Başka bir kod ekranı değiştirirse geri al */
-  function enforceUserFace(){
-    if(!isPlayer()) return;
-    initialFace();
-    if(!initialized) return;
-    var root = rootEl(); if(!root) return;
-    var wantCls  = userFace === 'auction' ? 'mercato-show-auction' : 'mercato-show-squad';
-    var otherCls = userFace === 'auction' ? 'mercato-show-squad' : 'mercato-show-auction';
-    var a = root.querySelector('[data-sec="auction"]');
-    var q = root.querySelector('[data-sec="squad"]');
-    var wantA = userFace === 'auction' ? 'block' : 'none';
-    var wantQ = userFace === 'squad'   ? 'block' : 'none';
-    var wrong = !root.classList.contains(wantCls) || root.classList.contains(otherCls) ||
-                (a && a.style.display !== wantA) || (q && q.style.display !== wantQ);
-    if(wrong) applyUserFace(userFace, false);
-  }
-
-  /* Son 5 saniye kırmızı uyarı */
-  function ensureOverlay(){
-    if(!document.getElementById('mercatoRed5Overlay') && document.body){
-      var ov = document.createElement('div');
-      ov.id = 'mercatoRed5Overlay';
-      ov.setAttribute('aria-hidden','true');
-      document.body.appendChild(ov);
-    }
-  }
-  var lastSec = null;
   function updateWarning(){
     if(!document.body) return;
     ensureOverlay();
-    var a = getAuction(), sec = NaN;
-    if(a && a.timeLeft !== undefined && a.timeLeft !== null && Number.isFinite(Number(a.timeLeft))){
-      sec = Number(a.timeLeft);
-    } else {
-      var t = document.getElementById('tvAucTimer');
-      var m = t && (t.textContent || '').match(/\d+/);
-      if(m) sec = Number(m[0]);
-    }
-    var inAuction = !!(a && a.active && !a.finished && !a.paused && a.current);
-    var warn = !!(isPlayer() && inAuction && sec > 0 && sec <= 5);
+    var sec = readSeconds();
+    var warn = !!(isPlayer() && sec >= 1 && sec <= 5);
     var ov = document.getElementById('mercatoRed5Overlay');
     document.body.classList.toggle('mercatoRed5', warn);
     if(warn){
-      var whole = Math.ceil(sec);          // 5,4,3,2,1
-      if(whole !== lastSec){               // her saniyede bir flash yeniden başlar
-        lastSec = whole;
+      if(sec !== lastSec){                      // her saniyede flash yeniden başlar
+        lastSec = sec;
         if(ov){ ov.classList.remove('pulse'); void ov.offsetWidth; ov.classList.add('pulse'); }
       }
-    } else {                               // sayaç bitti / ihale yok: her şey sıfırlanır
+    } else {                                    // sayaç bitti / ihale yok: sıfırla
       lastSec = null;
       if(ov) ov.classList.remove('pulse');
     }
   }
+  /* Sayaç metni değişir değişmez anında tepki ver */
+  (function watchTimer(){
+    var tries = 0, h = setInterval(function(){
+      var t = document.getElementById('tvAucTimer');
+      if(t && window.MutationObserver && !t.__mercatoRed5Obs){
+        t.__mercatoRed5Obs = true;
+        new MutationObserver(updateWarning).observe(t,{childList:true,characterData:true,subtree:true});
+      }
+      if(++tries > 600) clearInterval(h);
+    }, 500);
+  })();
 
   function tick(){ enforceUserFace(); updateWarning(); }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', tick, {once:true}); else tick();
